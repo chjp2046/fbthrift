@@ -21,7 +21,7 @@
 
 #include <thrift/lib/cpp/thrift_config.h>
 #include <thrift/lib/cpp/async/TEventBase.h>
-#include <event.h>
+#include "thirdparty/libevent/event.h"
 #include <map>
 
 namespace apache { namespace thrift { namespace async {

@@ -25,7 +25,7 @@
 #include <thrift/lib/cpp/transport/TBufferTransports.h>
 #include <thrift/lib/cpp/util/VarintUtils.h>
 #include <thrift/lib/cpp/concurrency/Thread.h>
-#include "snappy.h"
+#include "thirdparty/snappy/snappy.h"
 
 #ifdef HAVE_QUICKLZ
 extern "C" {

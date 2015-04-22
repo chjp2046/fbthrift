@@ -1,0 +1,299 @@
+make  all-recursive
+make[1]: Entering directory `/data/home/jieping/workspace/poppy/thirdparty/thrift'
+Making all in compiler
+make[2]: Entering directory `/data/home/jieping/workspace/poppy/thirdparty/thrift/compiler'
+make  all-recursive
+make[3]: Entering directory `/data/home/jieping/workspace/poppy/thirdparty/thrift/compiler'
+Making all in .
+make[4]: Entering directory `/data/home/jieping/workspace/poppy/thirdparty/thrift/compiler'
+/bin/sh ../build-aux/ylwrap thrifty.yy y.tab.c thrifty.cc y.tab.h thrifty.h y.output thrifty.output -- bison -y  -d 
+/bin/sh ../build-aux/ylwrap thriftl.ll lex.yy.c thriftl.cc -- flex  
+depbase=`echo common.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ../libtool --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT common.lo -MD -MP -MF $depbase.Tpo -c -o common.lo common.cc &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo parse/t_type.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ../libtool --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT parse/t_type.lo -MD -MP -MF $depbase.Tpo -c -o parse/t_type.lo parse/t_type.cc &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo parse/t_typedef.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ../libtool --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT parse/t_typedef.lo -MD -MP -MF $depbase.Tpo -c -o parse/t_typedef.lo parse/t_typedef.cc &&\
+	mv -f $depbase.Tpo $depbase.Plo
+cd .. && /bin/sh ./config.status compiler/version.h
+depbase=`echo generate/t_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_generator.o generate/t_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_cpp_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_cpp_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_cpp_generator.o generate/t_cpp_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT common.lo -MD -MP -MF .deps/common.Tpo -c common.cc  -fPIC -DPIC -o .libs/common.o
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT parse/t_type.lo -MD -MP -MF parse/.deps/t_type.Tpo -c parse/t_type.cc  -fPIC -DPIC -o parse/.libs/t_type.o
+depbase=`echo generate/t_java_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_java_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_java_generator.o generate/t_java_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT parse/t_typedef.lo -MD -MP -MF parse/.deps/t_typedef.Tpo -c parse/t_typedef.cc  -fPIC -DPIC -o parse/.libs/t_typedef.o
+updating thrifty.h
+depbase=`echo generate/t_csharp_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_csharp_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_csharp_generator.o generate/t_csharp_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+config.status: creating compiler/version.h
+depbase=`echo generate/t_py_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_py_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_py_generator.o generate/t_py_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT parse/t_typedef.lo -MD -MP -MF parse/.deps/t_typedef.Tpo -c parse/t_typedef.cc -o parse/t_typedef.o >/dev/null 2>&1
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT parse/t_type.lo -MD -MP -MF parse/.deps/t_type.Tpo -c parse/t_type.cc -o parse/t_type.o >/dev/null 2>&1
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT common.lo -MD -MP -MF .deps/common.Tpo -c common.cc -o common.o >/dev/null 2>&1
+depbase=`echo generate/t_rb_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_rb_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_rb_generator.o generate/t_rb_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_perl_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_perl_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_perl_generator.o generate/t_perl_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_php_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_php_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_php_generator.o generate/t_php_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_erl_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_erl_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_erl_generator.o generate/t_erl_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_cocoa_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_cocoa_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_cocoa_generator.o generate/t_cocoa_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_st_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_st_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_st_generator.o generate/t_st_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_ocaml_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_ocaml_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_ocaml_generator.o generate/t_ocaml_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_hs_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_hs_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_hs_generator.o generate/t_hs_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_xsd_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_xsd_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_xsd_generator.o generate/t_xsd_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_html_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_html_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_html_generator.o generate/t_html_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+depbase=`echo generate/t_js_generator.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT generate/t_js_generator.o -MD -MP -MF $depbase.Tpo -c -o generate/t_js_generator.o generate/t_js_generator.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+/bin/sh ../libtool  --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -DTHRIFTY_HH=\"thrift/compiler/thrifty.h\" -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT libparse_la-thrifty.lo -MD -MP -MF .deps/libparse_la-thrifty.Tpo -c -o libparse_la-thrifty.lo `test -f 'thrifty.cc' || echo './'`thrifty.cc
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -DTHRIFTY_HH=\"thrift/compiler/thrifty.h\" -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT libparse_la-thrifty.lo -MD -MP -MF .deps/libparse_la-thrifty.Tpo -c thrifty.cc  -fPIC -DPIC -o .libs/libparse_la-thrifty.o
+/bin/sh ../libtool  --tag=CXX   --mode=compile g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -DTHRIFTY_HH=\"thrift/compiler/thrifty.h\" -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT libparse_la-thriftl.lo -MD -MP -MF .deps/libparse_la-thriftl.Tpo -c -o libparse_la-thriftl.lo `test -f 'thriftl.cc' || echo './'`thriftl.cc
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -DTHRIFTY_HH=\"thrift/compiler/thrifty.h\" -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT libparse_la-thriftl.lo -MD -MP -MF .deps/libparse_la-thriftl.Tpo -c thriftl.cc  -fPIC -DPIC -o .libs/libparse_la-thriftl.o
+/bin/sh ../libtool --tag=CXX   --mode=link g++  -std=gnu++0x -lcrypto -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/gflags-2.0/src -L/usr/local/lib -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/folly/ -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/double-conversion-dev/ -o libthriftcompilerbase.la  common.lo parse/t_type.lo parse/t_typedef.lo  
+libtool: link: ar cru .libs/libthriftcompilerbase.a .libs/common.o parse/.libs/t_type.o parse/.libs/t_typedef.o 
+libtool: link: ranlib .libs/libthriftcompilerbase.a
+libtool: link: ( cd ".libs" && rm -f "libthriftcompilerbase.la" && ln -s "../libthriftcompilerbase.la" "libthriftcompilerbase.la" )
+depbase=`echo main.o | sed 's|[^/]*$|.deps/&|;s|\.o$||'`;\
+	g++ -DHAVE_CONFIG_H   -I../..  -pthread -I/usr/include -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/  -std=gnu++0x -MT main.o -MD -MP -MF $depbase.Tpo -c -o main.o main.cc &&\
+	mv -f $depbase.Tpo $depbase.Po
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -DTHRIFTY_HH=\"thrift/compiler/thrifty.h\" -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT libparse_la-thriftl.lo -MD -MP -MF .deps/libparse_la-thriftl.Tpo -c thriftl.cc -o libparse_la-thriftl.o >/dev/null 2>&1
+libtool: compile:  g++ -DHAVE_CONFIG_H -I../.. -pthread -I/usr/include -DTHRIFTY_HH=\"thrift/compiler/thrifty.h\" -I/data/home/jieping/workspace/poppy/thirdparty/ -I/data/home/jieping/workspace/poppy/ -std=gnu++0x -MT libparse_la-thrifty.lo -MD -MP -MF .deps/libparse_la-thrifty.Tpo -c thrifty.cc -o libparse_la-thrifty.o >/dev/null 2>&1
+mv -f .deps/libparse_la-thriftl.Tpo .deps/libparse_la-thriftl.Plo
+mv -f .deps/libparse_la-thrifty.Tpo .deps/libparse_la-thrifty.Plo
+/bin/sh ../libtool --tag=CXX   --mode=link g++  -std=gnu++0x  -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/gflags-2.0/src -L/usr/local/lib -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/folly/ -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/double-conversion-dev/ -o libparse.la  libparse_la-thrifty.lo libparse_la-thriftl.lo  
+libtool: link: ar cru .libs/libparse.a .libs/libparse_la-thrifty.o .libs/libparse_la-thriftl.o 
+libtool: link: ranlib .libs/libparse.a
+libtool: link: ( cd ".libs" && rm -f "libparse.la" && ln -s "../libparse.la" "libparse.la" )
+/bin/sh ../libtool --tag=CXX   --mode=link g++  -std=gnu++0x -lfolly -lcrypto -lglog -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/gflags-2.0/src -L/usr/local/lib -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/folly/ -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/double-conversion-dev/ -o thrift1 main.o generate/t_generator.o generate/t_cpp_generator.o generate/t_java_generator.o generate/t_csharp_generator.o generate/t_py_generator.o generate/t_rb_generator.o generate/t_perl_generator.o generate/t_php_generator.o generate/t_erl_generator.o generate/t_cocoa_generator.o generate/t_st_generator.o generate/t_ocaml_generator.o generate/t_hs_generator.o generate/t_xsd_generator.o generate/t_html_generator.o generate/t_js_generator.o libparse.la libthriftcompilerbase.la 
+libtool: link: g++ -std=gnu++0x -o thrift1 main.o generate/t_generator.o generate/t_cpp_generator.o generate/t_java_generator.o generate/t_csharp_generator.o generate/t_py_generator.o generate/t_rb_generator.o generate/t_perl_generator.o generate/t_php_generator.o generate/t_erl_generator.o generate/t_cocoa_generator.o generate/t_st_generator.o generate/t_ocaml_generator.o generate/t_hs_generator.o generate/t_xsd_generator.o generate/t_html_generator.o generate/t_js_generator.o  -lfolly -lglog -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/gflags-2.0/src -L/usr/local/lib -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/folly/ -L/data/home/jieping/workspace/poppy/build64_release/thirdparty/double-conversion-dev/ ./.libs/libparse.a ./.libs/libthriftcompilerbase.a -lcrypto /usr/local/gcc/4.9.2/lib/../lib64/libstdc++.so -lm -Wl,-rpath -Wl,/usr/local/gcc/4.9.2/lib/../lib64 -Wl,-rpath -Wl,/usr/local/gcc/4.9.2/lib/../lib64
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `~Mutex':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:241: undefined reference to `pthread_rwlock_destroy'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Mutex':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:239: undefined reference to `pthread_rwlock_init'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `google::LogMessage::Init(char const*, int, int, void (google::LogMessage::*)())':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `ReaderUnlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:250: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `ReaderLock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:249: undefined reference to `pthread_rwlock_rdlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `ReaderUnlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:250: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `ReaderLock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:249: undefined reference to `pthread_rwlock_rdlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `LogToSinks':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:249: undefined reference to `pthread_rwlock_rdlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `glog_internal_namespace_::Mutex::~Mutex()':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:241: undefined reference to `pthread_rwlock_destroy'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `__static_initialization_and_destruction_0':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/logging.cc:92: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/logging.cc:94: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/logging.cc:97: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/logging.cc:113: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/logging.cc:118: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o):/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/logging.cc:121: more undefined references to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)' follow
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `glog_internal_namespace_::Mutex::Mutex()':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:239: undefined reference to `pthread_rwlock_init'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `glog_internal_namespace_::Mutex::Unlock()':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `glog_internal_namespace_::Mutex::ReaderUnlock()':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:250: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `ReaderLock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:249: undefined reference to `pthread_rwlock_rdlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(logging.cc.o): In function `ReaderUnlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:250: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(utilities.cc.o): In function `__static_initialization_and_destruction_0':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/utilities.cc:70: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/utilities.cc:73: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(vlog_is_on.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(vlog_is_on.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(vlog_is_on.cc.o): In function `Lock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:242: undefined reference to `pthread_rwlock_wrlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(vlog_is_on.cc.o): In function `Unlock':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:243: undefined reference to `pthread_rwlock_unlock'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(vlog_is_on.cc.o): In function `__static_initialization_and_destruction_0':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/vlog_is_on.cc:52: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/vlog_is_on.cc:55: undefined reference to `google::FlagRegisterer::FlagRegisterer(char const*, char const*, char const*, char const*, void*, void*)'
+/data/home/jieping/workspace/poppy/build64_release/thirdparty/glog-0.3.2/src/libglog.a(vlog_is_on.cc.o): In function `Mutex':
+/data/home/jieping/workspace/poppy/thirdparty/glog-0.3.2/src/base/mutex.h:239: undefined reference to `pthread_rwlock_init'
+generate/t_cpp_generator.o: In function `folly::usingJEMalloc()':
+t_cpp_generator.cc:(.text._ZN5folly13usingJEMallocEv[_ZN5folly13usingJEMallocEv]+0x2d): undefined reference to `folly::usingJEMallocSlow()'
+generate/t_cpp_generator.o: In function `folly::demangle(std::type_info const&)':
+t_cpp_generator.cc:(.text._ZN5folly8demangleERKSt9type_info[_ZN5folly8demangleERKSt9type_info]+0x2a): undefined reference to `folly::demangle(char const*)'
+generate/t_cpp_generator.o: In function `folly::FormatArg::FormatArg(folly::Range<char const*>)':
+t_cpp_generator.cc:(.text._ZN5folly9FormatArgC2ENS_5RangeIPKcEE[_ZN5folly9FormatArgC5ENS_5RangeIPKcEE]+0xc4): undefined reference to `folly::FormatArg::initSlow()'
+generate/t_cpp_generator.o: In function `void folly::cEscape<std::string>(folly::Range<char const*>, std::string&)':
+t_cpp_generator.cc:(.text._ZN5folly7cEscapeISsEEvNS_5RangeIPKcEERT_[_ZN5folly7cEscapeISsEEvNS_5RangeIPKcEERT_]+0x8a): undefined reference to `folly::detail::cEscapeTable'
+generate/t_cpp_generator.o: In function `unsigned int folly::detail::digits_to<unsigned int>(char const*, char const*)':
+t_cpp_generator.cc:(.text._ZN5folly6detail9digits_toIjEET_PKcS4_[_ZN5folly6detail9digits_toIjEET_PKcS4_]+0xe8): undefined reference to `folly::detail::MaxString<unsigned int>::value'
+generate/t_cpp_generator.o: In function `_ZNK5folly13BaseFormatterINS_9FormatterILb1EJSt3mapISsSsSt4lessISsESaISt4pairIKSsSsEEEEEELb1EJS9_EE20handleFormatStrErrorEv':
+t_cpp_generator.cc:(.text._ZNK5folly13BaseFormatterINS_9FormatterILb1EISt3mapISsSsSt4lessISsESaISt4pairIKSsSsEEEEEELb1EIS9_EE20handleFormatStrErrorEv[_ZNK5folly13BaseFormatterINS_9FormatterILb1EISt3mapISsSsSt4lessISsESaISt4pairIKSsSsEEEEEELb1EIS9_EE20handleFormatStrErrorEv]+0x83): undefined reference to `folly::operator<<(std::ostream&, folly::Range<char const*>)'
+generate/t_cpp_generator.o: In function `_ZNK5folly13BaseFormatterINS_9FormatterILb0EJRSsEEELb0EJS2_EE20handleFormatStrErrorEv':
+t_cpp_generator.cc:(.text._ZNK5folly13BaseFormatterINS_9FormatterILb0EIRSsEEELb0EIS2_EE20handleFormatStrErrorEv[_ZNK5folly13BaseFormatterINS_9FormatterILb0EIRSsEEELb0EIS2_EE20handleFormatStrErrorEv]+0x83): undefined reference to `folly::operator<<(std::ostream&, folly::Range<char const*>)'
+generate/t_cpp_generator.o: In function `_ZNK5folly13BaseFormatterINS_9FormatterILb0EJRPKcRSsEEELb0EJS4_S5_EE20handleFormatStrErrorEv':
+t_cpp_generator.cc:(.text._ZNK5folly13BaseFormatterINS_9FormatterILb0EIRPKcRSsEEELb0EIS4_S5_EE20handleFormatStrErrorEv[_ZNK5folly13BaseFormatterINS_9FormatterILb0EIRPKcRSsEEELb0EIS4_S5_EE20handleFormatStrErrorEv]+0x83): undefined reference to `folly::operator<<(std::ostream&, folly::Range<char const*>)'
+generate/t_cpp_generator.o: In function `_ZNK5folly13BaseFormatterINS_9FormatterILb1EJRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EJSC_EE20handleFormatStrErrorEv':
+t_cpp_generator.cc:(.text._ZNK5folly13BaseFormatterINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EISC_EE20handleFormatStrErrorEv[_ZNK5folly13BaseFormatterINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EISC_EE20handleFormatStrErrorEv]+0x83): undefined reference to `folly::operator<<(std::ostream&, folly::Range<char const*>)'
+generate/t_cpp_generator.o: In function `_ZNK5folly13BaseFormatterINS_9FormatterILb0EJNS1_ILb1EJRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESD_EEELb0EJSD_SD_EE20handleFormatStrErrorEv':
+t_cpp_generator.cc:(.text._ZNK5folly13BaseFormatterINS_9FormatterILb0EINS1_ILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESD_EEELb0EISD_SD_EE20handleFormatStrErrorEv[_ZNK5folly13BaseFormatterINS_9FormatterILb0EINS1_ILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESD_EEELb0EISD_SD_EE20handleFormatStrErrorEv]+0x83): undefined reference to `folly::operator<<(std::ostream&, folly::Range<char const*>)'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueISsvE6formatIZNS_lsILb0EJRSsEEERSoS5_RKNS_9FormatterIXT_EJDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueISsvE6formatIZNS_lsILb0EIRSsEEERSoS5_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueISsvE6formatIZNS_lsILb0EIRSsEEERSoS5_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_]+0x31): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueISsvE6formatIZNS_lsILb1EJSt3mapISsSsSt4lessISsESaISt4pairIKSsSsEEEEEERSoSC_RKNS_9FormatterIXT_EJDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueISsvE6formatIZNS_lsILb1EISt3mapISsSsSt4lessISsESaISt4pairIKSsSsEEEEEERSoSC_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueISsvE6formatIZNS_lsILb1EISt3mapISsSsSt4lessISsESaISt4pairIKSsSsEEEEEERSoSC_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_]+0x31): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EJRSsEEERSoS5_RKNS_9FormatterIXT_EJDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EIRSsEEERSoS5_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EIRSsEEERSoS5_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_]+0x21): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueIDnvE6formatIZNS_lsILb0EJRPKcRSsEEERSoS8_RKNS_9FormatterIXT_EJDpT0_EEEEUlNS_5RangeIS5_EEE_EEvRNS_9FormatArgERT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueIDnvE6formatIZNS_lsILb0EIRPKcRSsEEERSoS9_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIS6_EEE_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueIDnvE6formatIZNS_lsILb0EIRPKcRSsEEERSoS9_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIS6_EEE_EEvRNS_9FormatArgERT_]+0x21): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueINS_5RangeIPKcEEvE6formatIZNS_lsILb0EJRS3_RSsEEERSoSA_RKNS_9FormatterIXT_EJDpT0_EEEEUlS4_E_EEvRNS_9FormatArgERT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueINS_5RangeIPKcEEvE6formatIZNS_lsILb0EIRS3_RSsEEERSoSA_RKNS_9FormatterIXT_EIDpT0_EEEEUlS4_E_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueINS_5RangeIPKcEEvE6formatIZNS_lsILb0EIRS3_RSsEEERSoSA_RKNS_9FormatterIXT_EIDpT0_EEEEUlS4_E_EEvRNS_9FormatArgERT_]+0x31): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o:t_cpp_generator.cc:(.text._ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EIRPKcRSsEEERSoS8_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIS5_EEE_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EIRPKcRSsEEERSoS8_RKNS_9FormatterIXT_EIDpT0_EEEEUlNS_5RangeIS5_EEE_EEvRNS_9FormatArgERT_]+0x21): more undefined references to `folly::FormatArg::validate(folly::FormatArg::Type) const' follow
+generate/t_cpp_generator.o: In function `unsigned long folly::detail::uintToOctal<unsigned char>(char*, unsigned long, unsigned char)':
+t_cpp_generator.cc:(.text._ZN5folly6detail11uintToOctalIhEEmPcmT_[_ZN5folly6detail11uintToOctalIhEEmPcmT_]+0x19): undefined reference to `folly::detail::formatOctal'
+generate/t_cpp_generator.o: In function `unsigned long folly::detail::uintToHexLower<unsigned char>(char*, unsigned long, unsigned char)':
+t_cpp_generator.cc:(.text._ZN5folly6detail14uintToHexLowerIhEEmPcmT_[_ZN5folly6detail14uintToHexLowerIhEEmPcmT_]+0x22): undefined reference to `folly::detail::formatHexLower'
+generate/t_cpp_generator.o: In function `unsigned long folly::detail::uintToHexUpper<unsigned char>(char*, unsigned long, unsigned char)':
+t_cpp_generator.cc:(.text._ZN5folly6detail14uintToHexUpperIhEEmPcmT_[_ZN5folly6detail14uintToHexUpperIhEEmPcmT_]+0x22): undefined reference to `folly::detail::formatHexUpper'
+generate/t_cpp_generator.o: In function `unsigned long folly::detail::uintToBinary<unsigned char>(char*, unsigned long, unsigned char)':
+t_cpp_generator.cc:(.text._ZN5folly6detail12uintToBinaryIhEEmPcmT_[_ZN5folly6detail12uintToBinaryIhEEmPcmT_]+0x19): undefined reference to `folly::detail::formatBinary'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueISsvE6formatIZNS_lsILb0EJNS_9FormatterILb1EJRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESG_EEERSoSH_RKNS4_IXT_EJDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueISsvE6formatIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESG_EEERSoSH_RKNS4_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueISsvE6formatIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESG_EEERSoSH_RKNS4_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_]+0x31): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueISsvE6formatIZNS_12format_value15formatFormatterIZNS_lsILb0EJNS_9FormatterILb1EJRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESI_EEERSoSJ_RKNS6_IXT_EJDpT0_EEEEUlNS_5RangeIPKcEEE_SI_Lb1EJSH_EEEvRKNS_13BaseFormatterIT0_XT1_EJDpT2_EEERNS_9FormatArgERT_EUlSS_E_EEvS12_RT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueISsvE6formatIZNS_12format_value15formatFormatterIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESI_EEERSoSJ_RKNS6_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_SI_Lb1EISH_EEEvRKNS_13BaseFormatterIT0_XT1_EIDpT2_EEERNS_9FormatArgERT_EUlSS_E_EEvS12_RT_[_ZNK5folly11FormatValueISsvE6formatIZNS_12format_value15formatFormatterIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESI_EEERSoSJ_RKNS6_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_SI_Lb1EISH_EEEvRKNS_13BaseFormatterIT0_XT1_EIDpT2_EEERNS_9FormatArgERT_EUlSS_E_EEvS12_RT_]+0x31): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EJNS_9FormatterILb1EJRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESG_EEERSoSH_RKNS4_IXT_EJDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESG_EEERSoSH_RKNS4_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_[_ZNK5folly11FormatValueIcvE6formatIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESG_EEERSoSH_RKNS4_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgERT_]+0x21): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueIcvE6formatIZNS_12format_value15formatFormatterIZNS_lsILb0EJNS_9FormatterILb1EJRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESI_EEERSoSJ_RKNS6_IXT_EJDpT0_EEEEUlNS_5RangeIPKcEEE_SI_Lb1EJSH_EEEvRKNS_13BaseFormatterIT0_XT1_EJDpT2_EEERNS_9FormatArgERT_EUlSS_E_EEvS12_RT_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueIcvE6formatIZNS_12format_value15formatFormatterIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESI_EEERSoSJ_RKNS6_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_SI_Lb1EISH_EEEvRKNS_13BaseFormatterIT0_XT1_EIDpT2_EEERNS_9FormatArgERT_EUlSS_E_EEvS12_RT_[_ZNK5folly11FormatValueIcvE6formatIZNS_12format_value15formatFormatterIZNS_lsILb0EINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEESI_EEERSoSJ_RKNS6_IXT_EIDpT0_EEEEUlNS_5RangeIPKcEEE_SI_Lb1EISH_EEEvRKNS_13BaseFormatterIT0_XT1_EIDpT2_EEERNS_9FormatArgERT_EUlSS_E_EEvS12_RT_]+0x21): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o: In function `_ZNK5folly11FormatValueISsvE6formatIZNKS_13BaseFormatterINS_9FormatterILb1EJRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EJSF_EE8appendToINS_14basic_fbstringIcSt11char_traitsIcESaIcENS_13fbstring_coreIcEEEEEENSt9enable_ifIXsrNS_12IsSomeStringIT_EE5valueEvE4typeERSS_EUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgESW_':
+t_cpp_generator.cc:(.text._ZNK5folly11FormatValueISsvE6formatIZNKS_13BaseFormatterINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EISF_EE8appendToINS_14basic_fbstringIcSt11char_traitsIcESaIcENS_13fbstring_coreIcEEEEEENSt9enable_ifIXsrNS_12IsSomeStringIT_EE5valueEvE4typeERSS_EUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgESW_[_ZNK5folly11FormatValueISsvE6formatIZNKS_13BaseFormatterINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EISF_EE8appendToINS_14basic_fbstringIcSt11char_traitsIcESaIcENS_13fbstring_coreIcEEEEEENSt9enable_ifIXsrNS_12IsSomeStringIT_EE5valueEvE4typeERSS_EUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgESW_]+0x31): undefined reference to `folly::FormatArg::validate(folly::FormatArg::Type) const'
+generate/t_cpp_generator.o:t_cpp_generator.cc:(.text._ZNK5folly11FormatValueIcvE6formatIZNKS_13BaseFormatterINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EISF_EE8appendToINS_14basic_fbstringIcSt11char_traitsIcESaIcENS_13fbstring_coreIcEEEEEENSt9enable_ifIXsrNS_12IsSomeStringIT_EE5valueEvE4typeERSS_EUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgESW_[_ZNK5folly11FormatValueIcvE6formatIZNKS_13BaseFormatterINS_9FormatterILb1EIRSt13unordered_mapISsSsSt4hashISsESt8equal_toISsESaISt4pairIKSsSsEEEEEELb1EISF_EE8appendToINS_14basic_fbstringIcSt11char_traitsIcESaIcENS_13fbstring_coreIcEEEEEENSt9enable_ifIXsrNS_12IsSomeStringIT_EE5valueEvE4typeERSS_EUlNS_5RangeIPKcEEE_EEvRNS_9FormatArgESW_]+0x21): more undefined references to `folly::FormatArg::validate(folly::FormatArg::Type) const' follow
+collect2: error: ld returned 1 exit status
+make[4]: *** [thrift1] Error 1
+make[4]: Leaving directory `/data/home/jieping/workspace/poppy/thirdparty/thrift/compiler'
+make[3]: *** [all-recursive] Error 1
+make[3]: Leaving directory `/data/home/jieping/workspace/poppy/thirdparty/thrift/compiler'
+make[2]: *** [all] Error 2
+make[2]: Leaving directory `/data/home/jieping/workspace/poppy/thirdparty/thrift/compiler'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/data/home/jieping/workspace/poppy/thirdparty/thrift'
+make: *** [all] Error 2
