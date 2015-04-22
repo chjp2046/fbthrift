@@ -1,0 +1,3 @@
+compiler/py/dist/
+compiler/py/thrift_py.egg-info/
+lib/cpp2/cpp
