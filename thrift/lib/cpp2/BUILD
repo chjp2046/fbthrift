@@ -4,12 +4,14 @@ cc_library(
 		'gen-cpp2/Sasl_constants.cpp',
 		'gen-cpp2/Sasl_types.cpp',
 	    'gen-cpp2/SaslAuthService.cpp',
-		'gen-cpp2/SaslAuthService_client.cpp'
+		'gen-cpp2/SaslAuthService_client.cpp',
+        'protocol/DebugProtocol.cpp'
 	],
 	deps = [
 		'//folly:folly',
 		'//thirdparty/openssl:ssl',
 		'//thirdparty/gperftools-2.0/src:profiler',
+        '#gssapi_krb5',
 		'#rt'
 	],
 	extra_cppflags = [

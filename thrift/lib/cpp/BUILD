@@ -33,6 +33,7 @@ cc_library(
 		'util/THttpParser.cpp',
 		'util/SocketRetriever.cpp',
 	        'util/VarintUtils.cpp',
+        'util/PausableTimer.cpp',
 		'concurrency/Mutex.cpp',
 	        'concurrency/Monitor.cpp',
 		'concurrency/PosixThreadFactory.cpp',
