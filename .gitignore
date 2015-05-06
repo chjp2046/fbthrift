@@ -18,8 +18,6 @@ _configs.sed
 /thrift/compiler/Makefile
 /thrift/compiler/py/Makefile
 /thrift/compiler/version.h
-/thrift/config.h
-/thrift/lib/cpp/thrift_config.h
 /thrift/config.log
 /thrift/config.status
 /thrift/lib/Makefile
@@ -31,7 +29,6 @@ _configs.sed
 /thrift/stamp-h1
 /thrift/m4/libtool.m4
 /thrift/m4/lt*
-
 # Build artifacts
 .libs
 *.o
@@ -41,10 +38,6 @@ _configs.sed
 gen-cpp
 gen-cpp2
 /thrift/.python-local/
-
-/thrift/compiler/thrifty.hh
-/thrift/compiler/thrift1
-/thrift/compiler/thriftl.cc
-/thrift/compiler/thrifty.cc
 /thrift/compiler/py/build/
 /thrift/compiler/py/frontend.so
+thrift/lib/py/build/
