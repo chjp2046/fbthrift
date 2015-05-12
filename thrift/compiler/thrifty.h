@@ -79,19 +79,21 @@
      tok_hash_map = 295,
      tok_list = 296,
      tok_set = 297,
-     tok_oneway = 298,
-     tok_typedef = 299,
-     tok_struct = 300,
-     tok_xception = 301,
-     tok_throws = 302,
-     tok_extends = 303,
-     tok_service = 304,
-     tok_enum = 305,
-     tok_const = 306,
-     tok_required = 307,
-     tok_optional = 308,
-     tok_union = 309,
-     tok_view = 310
+     tok_hash_set = 298,
+     tok_stream = 299,
+     tok_oneway = 300,
+     tok_typedef = 301,
+     tok_struct = 302,
+     tok_xception = 303,
+     tok_throws = 304,
+     tok_extends = 305,
+     tok_service = 306,
+     tok_enum = 307,
+     tok_const = 308,
+     tok_required = 309,
+     tok_optional = 310,
+     tok_union = 311,
+     tok_view = 312
    };
 #endif
 /* Tokens.  */
@@ -135,19 +137,21 @@
 #define tok_hash_map 295
 #define tok_list 296
 #define tok_set 297
-#define tok_oneway 298
-#define tok_typedef 299
-#define tok_struct 300
-#define tok_xception 301
-#define tok_throws 302
-#define tok_extends 303
-#define tok_service 304
-#define tok_enum 305
-#define tok_const 306
-#define tok_required 307
-#define tok_optional 308
-#define tok_union 309
-#define tok_view 310
+#define tok_hash_set 298
+#define tok_stream 299
+#define tok_oneway 300
+#define tok_typedef 301
+#define tok_struct 302
+#define tok_xception 303
+#define tok_throws 304
+#define tok_extends 305
+#define tok_service 306
+#define tok_enum 307
+#define tok_const 308
+#define tok_required 309
+#define tok_optional 310
+#define tok_union 311
+#define tok_view 312
 
 
 
@@ -183,7 +187,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 187 "thrifty.h"
+#line 191 "thrifty.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

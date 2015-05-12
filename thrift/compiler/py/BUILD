@@ -1,3 +1,6 @@
+#blade build --generate-dynamic
+#sudo python setup.py install
+#/usr/local/bin/python setup.py install
 
 cc_library(
     name = "frontend",

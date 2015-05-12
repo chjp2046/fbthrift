@@ -1,3 +1,5 @@
+#python -mthrift_compiler.main --gen cpp2 Sasl.thrift
+
 cc_library(
 	name = "saslstubs",
 	srcs = [
@@ -36,6 +38,7 @@ cc_library(
 		'async/GssSaslClient.cpp',
 		'async/GssSaslServer.cpp',
 		'async/Cpp2Channel.cpp',
+        'async/ProtectionHandler.cpp',
 		'async/AsyncProcessor.cpp',
 		'async/DuplexChannel.cpp',
 		'protocol/Serializer.cpp',
@@ -52,7 +55,6 @@ cc_library(
 		'server/Cpp2Connection.cpp',
 		'server/Cpp2Worker.cpp',
 		'server/ThriftServer.cpp',
-		'cpp/async/TAsyncSignalHandler.cpp',
 		'cpp/EventHandlerBase.cpp',
 		'cpp/transport/THeaderTransport.cpp',
 		'cpp/util/ScopedServerThread.cpp',
