@@ -24,6 +24,7 @@
 #include <thrift/lib/cpp2/async/Cpp2Channel.h>
 #include <folly/io/IOBuf.h>
 #include <folly/io/IOBufQueue.h>
+#include <folly/io/Cursor.h>
 #include <folly/io/async/test/SocketPair.h>
 #include <thrift/lib/cpp/EventHandlerBase.h>
 #include <thrift/lib/cpp/async/TAsyncTimeout.h>
@@ -68,7 +69,7 @@ class EventBaseAborter : public TAsyncTimeout {
 };
 
 // Creates/unwraps a framed message (LEN(MSG) | MSG)
-class FramingHandler : public FramingChannelHandler {
+class TestFramingHandler : public FramingHandler {
 public:
   std::pair<unique_ptr<IOBuf>, size_t> removeFrame(IOBufQueue* q) override {
     assert(q);
@@ -125,7 +126,7 @@ unique_ptr<Channel, TDelayedDestruction::Destructor> createChannel(
 template <>
 unique_ptr<Cpp2Channel, TDelayedDestruction::Destructor> createChannel(
     const shared_ptr<TAsyncTransport>& transport) {
-  return Cpp2Channel::newChannel(transport, make_unique<FramingHandler>());
+  return Cpp2Channel::newChannel(transport, make_unique<TestFramingHandler>());
 }
 
 template<typename Channel1, typename Channel2>
@@ -220,6 +221,8 @@ class TestRequestCallback : public RequestCallback, public CloseCallback {
     if (state.isSecurityActive()) {
       replySecurityActive_++;
     }
+    securityStartTime_ = securityStart_;
+    securityEndTime_ = securityEnd_;
   }
   virtual void requestError(ClientReceiveState&& state) {
     std::exception_ptr ex = state.exception();
@@ -229,6 +232,8 @@ class TestRequestCallback : public RequestCallback, public CloseCallback {
       // Verify that exception pointer is passed properly
     }
     replyError_++;
+    securityStartTime_ = securityStart_;
+    securityEndTime_ = securityEnd_;
   }
   virtual void channelClosed() {
     closed_ = true;
@@ -240,6 +245,8 @@ class TestRequestCallback : public RequestCallback, public CloseCallback {
     replyBytes_ = 0;
     replyError_ = 0;
     replySecurityActive_ = 0;
+    securityStartTime_ = 0;
+    securityEndTime_ = 0;
   }
 
   static bool closed_;
@@ -247,6 +254,8 @@ class TestRequestCallback : public RequestCallback, public CloseCallback {
   static uint32_t replyBytes_;
   static uint32_t replyError_;
   static uint32_t replySecurityActive_;
+  static int64_t securityStartTime_;
+  static int64_t securityEndTime_;
 };
 
 bool TestRequestCallback::closed_ = false;
@@ -254,6 +263,8 @@ uint32_t TestRequestCallback::reply_ = 0;
 uint32_t TestRequestCallback::replyBytes_ = 0;
 uint32_t TestRequestCallback::replyError_ = 0;
 uint32_t TestRequestCallback::replySecurityActive_ = 0;
+int64_t TestRequestCallback::securityStartTime_ = 0;
+int64_t TestRequestCallback::securityEndTime_ = 0;
 
 class ResponseCallback
     : public ResponseChannel::Callback {
@@ -422,15 +433,27 @@ class SecurityNegotiationTest
 public:
   explicit SecurityNegotiationTest(bool clientSasl, bool clientNonSasl,
                                    bool serverSasl, bool serverNonSasl,
-                                   bool expectConn, bool expectSecurity)
+                                   bool expectConn, bool expectSecurity,
+                                   bool expectSecurityAttempt,
+                                   int64_t expectedSecurityLatency = 0)
       : clientSasl_(clientSasl), clientNonSasl_(clientNonSasl)
       , serverSasl_(serverSasl), serverNonSasl_(serverNonSasl)
-      , expectConn_(expectConn), expectSecurity_(expectSecurity) {
+      , expectConn_(expectConn), expectSecurity_(expectSecurity)
+      , expectSecurityAttempt_(expectSecurityAttempt)
+      , expectedSecurityLatency_(expectedSecurityLatency) {
     // Replace handshake mechanism with a stub.
     stubSaslClient_ = new StubSaslClient(socket0_->getEventBase());
+    // Force each RTT in stub handshake to take at least 100 ms.
+    stubSaslClient_->setForceMsSpentPerRTT(100);
     channel0_->setSaslClient(std::unique_ptr<SaslClient>(stubSaslClient_));
     stubSaslServer_ = new StubSaslServer(socket1_->getEventBase());
     channel1_->setSaslServer(std::unique_ptr<SaslServer>(stubSaslServer_));
+
+    // Capture the timestamp
+    auto now = std::chrono::high_resolution_clock::now();
+    initTime_ = std::chrono::duration_cast<std::chrono::microseconds>(
+                  now.time_since_epoch()).count();
+
   }
 
   ~SecurityNegotiationTest() {
@@ -533,8 +556,33 @@ public:
       EXPECT_NE(channel0_->getSaslPeerIdentity(), "");
       EXPECT_NE(channel1_->getSaslPeerIdentity(), "");
       EXPECT_EQ(replySecurityActive_, 1);
+
+      // Check the latency incurred for doing security
+      CHECK(expectSecurityAttempt_);
+      EXPECT_GT(securityStartTime_, initTime_);
+      EXPECT_GT(securityEndTime_, securityStartTime_);
+      /*
+       * Security is expected to succeed. We assert that security latency is
+       * less than expectedSecurityLatency_
+       */
+      EXPECT_LT(securityEndTime_ - securityStartTime_,
+                expectedSecurityLatency_);
+      EXPECT_GT(securityEndTime_ - securityStartTime_, 200*1000);
     } else {
       EXPECT_EQ(replySecurityActive_, 0);
+      if (expectSecurityAttempt_) {
+        // Check the latency incurred for doing security
+        EXPECT_GT(securityStartTime_, initTime_);
+        EXPECT_GT(securityEndTime_, securityStartTime_);
+        /*
+         * Security is expected to be attempted but not succeed. We assert on
+         * security latency at least being greater than expectedSecurityLatency_
+         */
+        EXPECT_GT(securityEndTime_ - securityStartTime_,
+                  expectedSecurityLatency_);
+        EXPECT_LT(securityEndTime_ - securityStartTime_,
+                  expectedSecurityLatency_ + 10*1000);
+      }
     }
   }
 
@@ -549,6 +597,9 @@ protected:
   bool serverNonSasl_;
   bool expectConn_;
   bool expectSecurity_;
+  bool expectSecurityAttempt_;
+  int64_t expectedSecurityLatency_;
+  int64_t initTime_;
 };
 
 class SecurityNegotiationClientFailTest : public SecurityNegotiationTest {
@@ -569,36 +620,118 @@ public:
   }
 };
 
+class SecurityNegotiationClientTimeoutGarbageTest :
+  public SecurityNegotiationTest {
+public:
+  template <typename... Args>
+  explicit SecurityNegotiationClientTimeoutGarbageTest(Args&&... args)
+      : SecurityNegotiationTest(std::forward<Args>(args)...) {
+    stubSaslClient_->setForceTimeout();
+    stubSaslServer_->setForceSendGarbage();
+  }
+};
+
+class SecurityNegotiationLatencyTest : public SecurityNegotiationTest {
+public:
+  template <typename... Args>
+  explicit SecurityNegotiationLatencyTest(Args&&... args)
+      : SecurityNegotiationTest(std::forward<Args>(args)...) {
+    stubSaslClient_->setForceTimeout();
+  }
+};
+
+TEST(Channel, SecurityNegotiationLatencyTest) {
+  // This test forces a timeout on the client side. This means that the client
+  // will attempt to do security but not succeed.
+
+  int64_t defaultSaslTimeout = 500 * 1000; //microseconds
+
+  //clientSasl clientNonSasl serverSasl serverNonSasl expectConn expectSecurity
+  //expectSecurityAttempt expectedSecurityLatency
+
+  /*
+   * For the following three tests connection will not be established because
+   * of security failure. Since the first RTT itself times out, the expected
+   * security latency is > defaultSaslTimeout.
+   */
+
+  // Client = required, Server: required.
+  SecurityNegotiationLatencyTest(true, false, true, false, false, false, true,
+                                 defaultSaslTimeout).run();
+
+  // Client = required, Server: permitted.
+  SecurityNegotiationLatencyTest(true, false, true, true, false, false, true,
+                                 defaultSaslTimeout).run();
+
+  // Client = permitted, Server: required.
+  SecurityNegotiationLatencyTest(true, true, true, false, false, false, true,
+                                 defaultSaslTimeout).run();
+
+  // For the following test connection will be established despite security
+  // failure.
+
+  // Client = permitted, Server: permitted.
+  SecurityNegotiationLatencyTest(true, true, true, true, true, false, true,
+                                 defaultSaslTimeout).run();
+}
+
 TEST(Channel, SecurityNegotiationTest) {
   //clientSasl clientNonSasl serverSasl serverNonSasl expectConn expectSecurity
-  SecurityNegotiationTest(false, false, false, false, true, false).run();
-  SecurityNegotiationTest(false, false, false, true, true, false).run();
-  SecurityNegotiationTest(false, false, true, false, false, false).run();
-  SecurityNegotiationTest(false, false, true, true, true, false).run();
+  //expectSecurityAttempt
 
-  SecurityNegotiationTest(false, true, false, false, true, false).run();
-  SecurityNegotiationTest(false, true, false, true, true, false).run();
-  SecurityNegotiationTest(false, true, true, false, false, false).run();
-  SecurityNegotiationTest(false, true, true, true, true, false).run();
+  /*
+   * When expectSecurity is true, we expect security to succed in those runs.
+   * The expected latency in these cases < 2*defaultSaslTimeout since the
+   * stubSaslClient implementation performs only 2 RTTs.
+   */
 
-  SecurityNegotiationTest(true, false, false, false, false, false).run();
-  SecurityNegotiationTest(true, false, false, true, false, false).run();
-  SecurityNegotiationTest(true, false, true, false, true, true).run();
-  SecurityNegotiationTest(true, false, true, true, true, true).run();
+  int64_t defaultSaslTimeout = 500 * 1000; //microseconds
 
-  SecurityNegotiationTest(true, true, false, false, true, false).run();
-  SecurityNegotiationTest(true, true, false, true, true, false).run();
-  SecurityNegotiationTest(true, true, true, false, true, true).run();
-  SecurityNegotiationTest(true, true, true, true, true, true).run();
+  // Client: disabled; Server: disabled, disabled, required, permitted
+  SecurityNegotiationTest(false, false, false, false, true, false, false).run();
+  SecurityNegotiationTest(false, false, false, true, true, false, false).run();
+  SecurityNegotiationTest(false, false, true, false, false, false, false).run();
+  SecurityNegotiationTest(false, false, true, true, true, false, false).run();
+
+  // Client policy: disabled; Server: disabled, disabled, required, permitted
+  SecurityNegotiationTest(false, true, false, false, true, false, false).run();
+  SecurityNegotiationTest(false, true, false, true, true, false, false).run();
+  SecurityNegotiationTest(false, true, true, false, false, false, false).run();
+  SecurityNegotiationTest(false, true, true, true, true, false, false).run();
+
+  // Client policy: required; Server: disabled, disabled, required, permitted
+  SecurityNegotiationTest(true, false, false, false, false, false, false).run();
+  SecurityNegotiationTest(true, false, false, true, false, false, false).run();
+  SecurityNegotiationTest(true, false, true, false, true, true, true,
+                          2*defaultSaslTimeout).run();
+  SecurityNegotiationTest(true, false, true, true, true, true, true,
+                          2*defaultSaslTimeout).run();
+
+  // Client policy: permitted; Server: disabled, disabled, required, permitted
+  SecurityNegotiationTest(true, true, false, false, true, false, false).run();
+  SecurityNegotiationTest(true, true, false, true, true, false, false).run();
+  SecurityNegotiationTest(true, true, true, false, true, true, true,
+                          2*defaultSaslTimeout).run();
+  SecurityNegotiationTest(true, true, true, true, true, true, true,
+                          2*defaultSaslTimeout).run();
 }
 
 TEST(Channel, SecurityNegotiationFailTest) {
-  SecurityNegotiationServerFailTest(true, false, true, true, false,false).run();
+  SecurityNegotiationServerFailTest(
+    true, false, true, true, false,false, false).run();
 
-  SecurityNegotiationClientFailTest(true, true, true, false, false,false).run();
+  SecurityNegotiationClientFailTest(
+    true, true, true, false, false, false, false).run();
 
-  SecurityNegotiationClientFailTest(true, true, true, true, true, false).run();
-  SecurityNegotiationServerFailTest(true, true, true, true, true, false).run();
+  SecurityNegotiationClientFailTest(
+    true, true, true, true, true, false, false).run();
+  SecurityNegotiationServerFailTest(
+    true, true, true, true, true, false, false).run();
+}
+
+TEST(Channel, SecurityNegotiationTimeoutGarbageTest) {
+  SecurityNegotiationClientTimeoutGarbageTest(
+    true, false, true, true, false, false, false).run();
 }
 
 class InOrderTest

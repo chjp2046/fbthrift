@@ -27,7 +27,10 @@
 #include <thrift/lib/cpp/async/TEventBase.h>
 #include <thrift/lib/cpp/transport/THeader.h>
 #include <folly/io/IOBufQueue.h>
-#include <folly/wangle/channel/ChannelHandler.h>
+#include <folly/wangle/channel/Handler.h>
+#include <folly/wangle/channel/StaticPipeline.h>
+#include <folly/wangle/channel/OutputBufferingHandler.h>
+#include <thrift/lib/cpp2/async/ProtectionHandler.h>
 #include <memory>
 
 #include <deque>
@@ -35,64 +38,9 @@
 
 namespace apache { namespace thrift {
 
-class ProtectionChannelHandler {
-public:
-  enum class ProtectionState {
-    UNKNOWN,
-    NONE,
-    INPROGRESS,
-    VALID,
-    INVALID,
-  };
-
-  ProtectionChannelHandler()
-    : protectionState_(ProtectionState::UNKNOWN)
-    , saslEndpoint_(nullptr)
-  {}
-
-  void setProtectionState(ProtectionState protectionState,
-                          SaslEndpoint* saslEndpoint = nullptr) {
-    protectionState_ = protectionState;
-    saslEndpoint_ = saslEndpoint;
-    protectionStateChanged();
-  }
-
-  ProtectionState getProtectionState() {
-    return protectionState_;
-  }
-
-  SaslEndpoint* getSaslEndpoint() {
-    return saslEndpoint_;
-  }
-
-  virtual void protectionStateChanged() {}
-
-  virtual ~ProtectionChannelHandler() {}
-
-  /**
-   * If q contains enough data, read it (removing it from q, but retaining
-   * following data), decrypt it and return as result.first.
-   * result.second is set to 0.
-   *
-   * If q doesn't contain enough data, return an empty unique_ptr in
-   * result.first and return the requested amount of bytes in result.second.
-   */
-  std::pair<folly::IOBufQueue*, size_t>
-  decrypt(folly::IOBufQueue* q);
-
-  /**
-   * Encrypt an IOBuf
-   */
-  std::unique_ptr<folly::IOBuf> encrypt(std::unique_ptr<folly::IOBuf> buf);
-private:
-  ProtectionState protectionState_;
-  SaslEndpoint* saslEndpoint_;
-  folly::IOBufQueue queue_;
-};
-
-class FramingChannelHandler {
-public:
-  virtual ~FramingChannelHandler() {}
+class FramingHandler {
+ public:
+  virtual ~FramingHandler() {}
 
   /**
    * If q contains enough data, read it (removing it from q, but retaining
@@ -114,24 +62,24 @@ public:
 
 class Cpp2Channel
   : public MessageChannel
-  , protected apache::thrift::async::TEventBase::LoopCallback
   , public folly::wangle::BytesToBytesHandler
  {
- protected:
-  virtual ~Cpp2Channel() {}
-
  public:
-
   explicit Cpp2Channel(
     const std::shared_ptr<apache::thrift::async::TAsyncTransport>& transport,
-    std::unique_ptr<FramingChannelHandler> framingHandler,
-    std::unique_ptr<ProtectionChannelHandler> protectionHandler = nullptr);
+    std::unique_ptr<FramingHandler> framingHandler,
+    std::unique_ptr<ProtectionHandler> protectionHandler = nullptr);
+
+  // TODO(jsedgwick) This should be protected, but folly::wangle::StaticPipeline
+  // will encase this in a folly::Optional, which requires a public destructor.
+  // Need to add a static_assert to Optional to make that prereq clearer
+  virtual ~Cpp2Channel() {}
 
   static std::unique_ptr<Cpp2Channel,
                          apache::thrift::async::TDelayedDestruction::Destructor>
   newChannel(
       const std::shared_ptr<apache::thrift::async::TAsyncTransport>& transport,
-      std::unique_ptr<FramingChannelHandler> framingHandler) {
+      std::unique_ptr<FramingHandler> framingHandler) {
     return std::unique_ptr<Cpp2Channel,
       apache::thrift::async::TDelayedDestruction::Destructor>(
       new Cpp2Channel(transport, std::move(framingHandler)));
@@ -173,22 +121,20 @@ class Cpp2Channel
   virtual void detachEventBase();
   apache::thrift::async::TEventBase* getEventBase();
 
-  // callback from TEventBase::LoopCallback.  Used for sends
-  virtual void runLoopCallback() noexcept override;
-
-  // Setter for queued sends mode.
-  // Can only be set in quiescent state, otherwise
-  // sendCallbacks_ would be called incorrectly.
+  // Queued sends feature - optimizes by minimizing syscalls in high-QPS
+  // loads for greater throughput, but at the expense of some
+  // minor latency increase.
   void setQueueSends(bool queueSends) {
-    CHECK(sends_ == nullptr);
-    queueSends_ = queueSends;
+    if (pipeline_) {
+      pipeline_->getHandler<folly::wangle::OutputBufferingHandler>(1)->queueSends_ = queueSends;
+    }
   }
 
-  ProtectionChannelHandler* getProtectionHandler() const {
+  ProtectionHandler* getProtectionHandler() const {
     return protectionHandler_.get();
   }
 
-  FramingChannelHandler* getChannelHandler() const {
+  FramingHandler* getChannelHandler() const {
     return framingHandler_.get();
   }
 
@@ -212,22 +158,17 @@ private:
   bool closing_;
   bool eofInvoked_;
 
-  std::unique_ptr<folly::IOBuf> sends_; // buffer of data to send.
-
   std::unique_ptr<RecvCallback::sample> sample_;
 
-  // Queued sends feature - optimizes by minimizing syscalls in high-QPS
-  // loads for greater throughput, but at the expense of some
-  // minor latency increase.
-  bool queueSends_;
+  std::shared_ptr<ProtectionHandler> protectionHandler_;
+  std::unique_ptr<FramingHandler> framingHandler_;
 
-  std::unique_ptr<ProtectionChannelHandler> protectionHandler_;
-  std::unique_ptr<FramingChannelHandler> framingHandler_;
-
-  typedef folly::wangle::ChannelPipeline<
+  typedef folly::wangle::StaticPipeline<
     folly::IOBufQueue&, std::unique_ptr<folly::IOBuf>,
     TAsyncTransportHandler,
-    folly::wangle::ChannelHandlerPtr<Cpp2Channel, false>>
+    folly::wangle::OutputBufferingHandler,
+    ProtectionHandler,
+    Cpp2Channel>
   Pipeline;
   std::unique_ptr<Pipeline, folly::DelayedDestruction::Destructor> pipeline_;
   TAsyncTransportHandler* transportHandler_;

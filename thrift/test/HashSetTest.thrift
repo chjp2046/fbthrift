@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,22 +17,7 @@
  * under the License.
  */
 
-using System;
-
-namespace Thrift.Transport
-{
-	/// <summary>
-	/// From Mark Slee & Aditya Agarwal of Facebook:
-	/// Factory class used to create wrapped instance of Transports.
-	/// This is used primarily in servers, which get Transports from
-	/// a ServerTransport and then may want to mutate them (i.e. create
-	/// a BufferedTransport from the underlying base transport)
-	/// </summary>
-	public class TTransportFactory
-	{
-		public virtual TTransport GetTransport(TTransport trans)
-		{
-			return trans;
-		}
-	}
+struct foo {
+  1: hash_set<i32> bar;
+  2: hash_set<string> baz;
 }

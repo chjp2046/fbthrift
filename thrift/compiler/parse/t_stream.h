@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,18 +17,40 @@
  * under the License.
  */
 
-namespace Thrift.Protocol
-{
-	public interface TBase
-	{
-		///
-		/// Reads the TObject from the given input protocol.
-		///
-		void Read(TProtocol tProtocol);
+#ifndef T_STREAM_H
+#define T_STREAM_H
 
-		///
-		/// Writes the objects out to the protocol
-		///
-		void Write(TProtocol tProtocol);
-	}
-}
+/**
+ * A stream is a lightweight object type that just wraps another data type.
+ *
+ */
+class t_stream : public t_type {
+ public:
+  explicit t_stream(t_type* elem_type) :
+    elem_type_(elem_type) {}
+
+  t_type* get_elem_type() const {
+    return elem_type_;
+  }
+
+  bool is_stream() const {
+    return true;
+  }
+
+  virtual std::string get_full_name() const {
+    return "stream<" + elem_type_->get_full_name() + ">";
+  }
+
+  virtual std::string get_impl_full_name() const {
+    return "stream<" + elem_type_->get_impl_full_name() + ">";
+  }
+
+  virtual TypeValue get_type_value() const {
+    return t_types::TYPE_STREAM;
+  }
+
+ private:
+  t_type* elem_type_;
+};
+
+#endif

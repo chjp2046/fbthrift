@@ -43,6 +43,7 @@ thrift2include_asyncdir = $(thrift2includedir)/async
 thrift2include_async_HEADERS = \
 	async/AsyncProcessor.h \
 	async/Cpp2Channel.h \
+	async/ProtectionHandler.h \
 	async/HeaderChannel.h \
 	async/DuplexChannel.h \
 	async/FutureRequest.h \
@@ -102,6 +103,7 @@ libthriftcpp2_la_SOURCES = Version.cpp \
 			   async/GssSaslClient.cpp \
 			   async/GssSaslServer.cpp \
 			   async/Cpp2Channel.cpp \
+			   async/ProtectionHandler.cpp \
 			   async/AsyncProcessor.cpp \
 			   async/DuplexChannel.cpp \
 			   protocol/Serializer.cpp \
@@ -118,7 +120,6 @@ libthriftcpp2_la_SOURCES = Version.cpp \
 			   server/Cpp2Connection.cpp \
 			   server/Cpp2Worker.cpp \
 			   server/ThriftServer.cpp \
-			   ../cpp/async/TAsyncSignalHandler.cpp \
 			   ../cpp/EventHandlerBase.cpp \
 			   ../cpp/transport/THeaderTransport.cpp \
 			   ../cpp/util/ScopedServerThread.cpp \
@@ -147,7 +148,7 @@ BUILT_SOURCES = gen-cpp2/Sasl_constants.cpp \
 		gen-cpp2/SaslAuthService_client.cpp
 
 gen-cpp2/Sasl_types.h: Sasl.thrift
-	PYTHONPATH=$(PY_LOCAL_PATH) python -mthrift_compiler.main --gen cpp2 $<
+	PYTHONPATH=$(PY_LOCAL_PATH) $(PYTHON) -mthrift_compiler.main --gen cpp2 $<
 
 gen-cpp2/Sasl_constants.cpp: gen-cpp2/Sasl_types.h
 

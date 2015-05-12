@@ -42,7 +42,8 @@ using apache::thrift::concurrency::TooManyPendingTasksException;
 KerberosSASLHandshakeClient::KerberosSASLHandshakeClient(
     const std::shared_ptr<SecurityLogger>& logger) :
     phase_(INIT),
-    logger_(logger) {
+    logger_(logger),
+    securityMech_(SecurityMech::KRB5_SASL) {
 
   // Set required security properties, we can define setters for these if
   // they need to be modified later.
@@ -96,6 +97,15 @@ KerberosSASLHandshakeClient::~KerberosSASLHandshakeClient() {
     // memory.
     logger->log("too_many_pending_tasks_in_cleanup");
     cleanUpState(context, target_name, client_creds, logger);
+  }
+}
+
+void KerberosSASLHandshakeClient::setSecurityMech(const SecurityMech mech) {
+  securityMech_ = mech;
+  if (mech == SecurityMech::KRB5_GSS_NO_MUTUAL) {
+    requiredFlags_ &= ~GSS_C_MUTUAL_FLAG;
+  } else {
+    requiredFlags_ |= GSS_C_MUTUAL_FLAG;
   }
 }
 
@@ -301,7 +311,9 @@ void KerberosSASLHandshakeClient::initSecurityContext() {
       throw TKerberosException("Not all security properties established");
     }
 
-    phase_ = CONTEXT_NEGOTIATION_COMPLETE;
+    phase_ = (securityMech_ == SecurityMech::KRB5_GSS_NO_MUTUAL ||
+              securityMech_ == SecurityMech::KRB5_GSS)
+             ? COMPLETE : CONTEXT_NEGOTIATION_COMPLETE;
   }
 }
 
@@ -312,10 +324,17 @@ std::unique_ptr<std::string> KerberosSASLHandshakeClient::getTokenToSend() {
       assert(false);
     case ESTABLISH_CONTEXT:
     case CONTEXT_NEGOTIATION_COMPLETE:
+    case COMPLETE:
     {
+      if (phase_ == COMPLETE &&
+          securityMech_ != SecurityMech::KRB5_GSS_NO_MUTUAL) {
+        // Complete state should only have a token to send if we're not doing
+        // mutual auth.
+        break;
+      }
       if (phase_ == ESTABLISH_CONTEXT) {
         logger_->logEnd("prepare_first_request");
-      } else {
+      } else if (phase_ == CONTEXT_NEGOTIATION_COMPLETE) {
         logger_->logEnd("prepare_second_request");
       }
       return unique_ptr<string>(

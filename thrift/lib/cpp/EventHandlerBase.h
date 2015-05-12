@@ -68,7 +68,7 @@ class TProcessorEventHandler {
    * The return value is passed to all other callbacks
    * for that function invocation.
    */
-  virtual void* getServiceContext(const std::string& service_name,
+  virtual void* getServiceContext(const char* service_name,
                            const char* fn_name,
                            TConnectionContext* connectionContext) {
     return getContext(fn_name, connectionContext);
@@ -142,8 +142,10 @@ class TProcessorEventHandler {
    *
    * Only called for Cpp2
    */
-  virtual void userException(void* ctx, const char* fn_name,
-                             const std::string& ex) {}
+  virtual void userException(void* ctx,
+                             const char* fn_name,
+                             const std::string& ex,
+                             const std::string& ex_what) {}
 
  protected:
   TProcessorEventHandler() {}
@@ -184,7 +186,7 @@ class ContextStack {
     const std::shared_ptr<
       std::vector<std::shared_ptr<TProcessorEventHandler>>
       >& handlers,
-    const std::string& serviceName,
+    const char* serviceName,
     const char* method,
     TConnectionContext* connectionContext)
       : ctxs_()
@@ -274,10 +276,10 @@ class ContextStack {
     }
   }
 
-  void userException(const std::string& ex) {
+  void userException(const std::string& ex, const std::string& ex_what) {
     if (handlers_) {
       for (size_t i = 0; i < handlers_->size(); i++) {
-        (*handlers_)[i]->userException(ctxs_[i], method_, ex);
+        (*handlers_)[i]->userException(ctxs_[i], method_, ex, ex_what);
       }
     }
   }
@@ -341,7 +343,7 @@ class EventHandlerBase {
 
  protected:
   std::unique_ptr<ContextStack> getContextStack(
-      const std::string& service_name,
+      const char* service_name,
       const char* fn_name,
       TConnectionContext* connectionContext) {
     std::unique_ptr<ContextStack> ctx(
@@ -427,7 +429,7 @@ class TClientBase : public EventHandlerBase {
     auto s = getContextStack("", fn_name, connectionContext);
     s_ = std::move(s);
   }
-  void generateClientContextStack(const std::string& service_name,
+  void generateClientContextStack(const char* service_name,
                                   const char* fn_name,
                                   TConnectionContext* connectionContext) {
     auto s = getContextStack(service_name, fn_name, connectionContext);

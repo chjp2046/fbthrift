@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements. See the NOTICE file
  * distributed with this work for additional information
@@ -17,26 +17,27 @@
  * under the License.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Text;
+#define BOOST_TEST_MODULE HashSetTest
+#include <boost/test/unit_test.hpp>
+#include "thrift/test/gen-cpp/HashSetTest_types.h"
 
-namespace Thrift.Protocol
-{
-	public struct TStruct
-	{
-		private string name;
+BOOST_AUTO_TEST_SUITE( HashSetTest )
 
-		public TStruct(string name)
-			:this()
-		{
-			this.name = name;
-		}
+BOOST_AUTO_TEST_CASE( test_hashset ) {
+  foo f;
+  f.bar.insert(5);
+  BOOST_CHECK_EQUAL(f.bar.count(5), 1);
+  f.bar.insert(6);
+  BOOST_CHECK_EQUAL(f.bar.count(6), 1);
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
-	}
+  f.bar.erase(5);
+  BOOST_CHECK_EQUAL(f.bar.count(5), 0);
+
+  f.baz.insert("cool");
+  BOOST_CHECK_EQUAL(f.baz.count("cool"), 1);
+
+  f.baz.erase("cool");
+  BOOST_CHECK_EQUAL(f.baz.count("cool"), 0);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

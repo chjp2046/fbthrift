@@ -72,7 +72,7 @@ class ThriftServerAsyncProcessorFactory : public AsyncProcessorFactory {
     std::shared_ptr<T> svIf_;
 };
 
-typedef folly::wangle::ChannelPipeline<
+typedef folly::wangle::Pipeline<
   folly::IOBufQueue&, std::unique_ptr<folly::IOBuf>> Pipeline;
 
 /**
@@ -121,6 +121,7 @@ class ThriftServer : public apache::thrift::server::TServer
     apache::thrift::async::TEventBase*)> saslServerFactory_;
   std::shared_ptr<apache::thrift::concurrency::ThreadManager>
     saslThreadManager_;
+  int nSaslPoolThreads_;
 
   std::unique_ptr<folly::ShutdownSocketSet> shutdownSocketSet_;
 
@@ -239,6 +240,13 @@ class ThriftServer : public apache::thrift::server::TServer
   std::unique_ptr<Cpp2Worker> duplexWorker_;
 
   bool isDuplex_;   // is server in duplex mode? (used by server)
+
+  mutable std::mutex ioGroupMutex_;
+
+  std::shared_ptr<folly::wangle::IOThreadPoolExecutor> getIOGroupSafe() const {
+    std::lock_guard<std::mutex> lock(ioGroupMutex_);
+    return getIOGroup();
+  }
 
   enum class InjectedFailure {
     NONE,
@@ -628,6 +636,23 @@ class ThriftServer : public apache::thrift::server::TServer
   }
   bool getNonSaslEnabled() {
     return nonSaslEnabled_;
+  }
+
+  /**
+   * Sets the number of threads to use for SASL negotiation if it has been
+   * enabled.
+   */
+  void setNSaslPoolThreads(int nSaslPoolThreads) {
+    CHECK(ioThreadPool_->numThreads() == 0);
+    nSaslPoolThreads_ = nSaslPoolThreads;
+  }
+
+  /**
+   * Sets the number of threads to use for SASL negotiation if it has been
+   * enabled.
+   */
+  int getNSaslPoolThreads() {
+    return nSaslPoolThreads_;
   }
 
   /**
