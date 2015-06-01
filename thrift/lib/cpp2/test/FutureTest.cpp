@@ -45,7 +45,8 @@ using namespace folly;
 using facebook::concurrency::TEventBaseExecutor;
 
 class TestInterface : public FutureServiceSvIf {
-  Future<std::unique_ptr<std::string>> future_sendResponse(int64_t size) {
+  Future<std::unique_ptr<std::string>> future_sendResponse(
+      int64_t size) override {
     EXPECT_NE("", getConnectionContext()->getPeerAddress()->describe());
 
     MoveWrapper<Promise<std::unique_ptr<std::string> > > p;
@@ -64,7 +65,7 @@ class TestInterface : public FutureServiceSvIf {
     return std::move(f);
   }
 
-  Future<void> future_noResponse(int64_t size) {
+  Future<void> future_noResponse(int64_t size) override {
     MoveWrapper<Promise<void>> p;
     auto f = p->getFuture();
 
@@ -78,13 +79,13 @@ class TestInterface : public FutureServiceSvIf {
   }
 
   Future<std::unique_ptr<std::string>> future_echoRequest(
-    std::unique_ptr<std::string> req) {
+      std::unique_ptr<std::string> req) override {
     *req += "ccccccccccccccccccccccccccccccccccccccccccccc";
 
     return makeFuture<std::unique_ptr<std::string>>(std::move(req));
   }
 
-  Future<int> future_throwing() {
+  Future<int> future_throwing() override {
     Promise<int> p;
     auto f = p.getFuture();
 
@@ -119,7 +120,7 @@ void AsyncCpp2Test(bool enable_security) {
 
   auto client_channel = HeaderClientChannel::newChannel(socket);
   if (enable_security) {
-    client_channel->getHeader()->setSecurityPolicy(THRIFT_SECURITY_PERMITTED);
+    client_channel->setSecurityPolicy(THRIFT_SECURITY_PERMITTED);
     client_channel->setSaslClient(std::unique_ptr<SaslClient>(
       new StubSaslClient(socket->getEventBase())
     ));

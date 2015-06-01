@@ -76,7 +76,8 @@ class AbstractTest():
                 anInteger16=234,
                 anInteger32=12345,
                 anInteger64=12345678910,
-                aBinary=b'abcd',
+                aString=u'\x00hello',
+                aBinary=b'\x00\x01\x00',
                 aDouble=1234567.901,
                 aFloat=12345.0,
                 aList=[12, 34, 567, 89],
@@ -91,7 +92,8 @@ class AbstractTest():
                 anInteger16=234,
                 anInteger32=12345,
                 anInteger64=12345678910,
-                aBinary=b'abcd',
+                aString=b'\x00hello',
+                aBinary=b'\x00\x01\x00',
                 aDouble=1234567.901,
                 aFloat=12345.0,
                 aList=[12, 34, 567, 89],
@@ -114,6 +116,9 @@ class AbstractTest():
 
     def test_decode(self):
         self.decode_helper(self.buildOneOfEachB())
+        # Test when ensureMapBegin needs to verify the buffer has
+        # at least a varint and 1 more byte.
+        self.decode_helper(OneOfEach(aMap={b"h": 1}), split=0.1)
 
     def test_decode_union(self):
         u = TestUnion(i32_field=123)

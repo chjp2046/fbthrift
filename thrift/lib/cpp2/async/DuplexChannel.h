@@ -64,7 +64,7 @@ class DuplexChannel {
       : HeaderClientChannel(cpp2Channel)
       , duplex_(duplex)
     {}
-    virtual void sendMessage(Cpp2Channel::SendCallback* callback,
+    void sendMessage(Cpp2Channel::SendCallback* callback,
                      std::unique_ptr<folly::IOBuf> buf) override {
       duplex_.lastSender_.set(Who::CLIENT);
       HeaderClientChannel::sendMessage(callback, std::move(buf));
@@ -87,8 +87,8 @@ class DuplexChannel {
       : HeaderServerChannel(cpp2Channel)
       , duplex_(duplex)
     {}
-    virtual void sendMessage(Cpp2Channel::SendCallback* callback,
-                       std::unique_ptr<folly::IOBuf> buf) override {
+    void sendMessage(Cpp2Channel::SendCallback* callback,
+                     std::unique_ptr<folly::IOBuf> buf) override {
       duplex_.lastSender_.set(Who::SERVER);
       HeaderServerChannel::sendMessage(callback, std::move(buf));
     }
@@ -188,29 +188,25 @@ class DuplexChannel {
         return;
       }
 
-      apache::thrift::transport::THeader* src;
-      apache::thrift::transport::THeader* dst;
+      CLIENT_TYPE srcClientType;
+      std::bitset<CLIENT_TYPES_LEN> supportedClients;
 
       switch (duplex_.mainChannel_.get()) {
       case Who::CLIENT:
-        src = duplex_.clientChannel_->getHeader();
-        dst = duplex_.serverChannel_->getHeader();
+        srcClientType = duplex_.clientChannel_->getClientType();
+        supportedClients[srcClientType] = true;
+        duplex_.serverChannel_->setSupportedClients(&supportedClients);
+        duplex_.serverChannel_->setClientType(srcClientType);
         break;
       case Who::SERVER:
-        src = duplex_.serverChannel_->getHeader();
-        dst = duplex_.clientChannel_->getHeader();
+        srcClientType = duplex_.serverChannel_->getClientType();
+        supportedClients[srcClientType] = true;
+        duplex_.clientChannel_->setSupportedClients(&supportedClients);
+        duplex_.clientChannel_->setClientType(srcClientType);
         break;
       case Who::UNKNOWN:
         CHECK(false);
       }
-
-      CLIENT_TYPE type = src->getClientType();
-
-      std::bitset<CLIENT_TYPES_LEN> supportedClients;
-      supportedClients[type] = true;
-
-      dst->setSupportedClients(&supportedClients);
-      dst->setClientType(type);
 
       if (getContext() && !inputQueue_.empty()) {
         read(getContext(), inputQueue_);

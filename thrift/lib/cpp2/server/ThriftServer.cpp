@@ -82,7 +82,8 @@ class ThriftAcceptorFactory : public folly::AcceptorFactory {
   explicit ThriftAcceptorFactory(ThriftServer* server)
       : server_(server) {}
 
-  virtual std::shared_ptr<folly::Acceptor> newAcceptor(folly::EventBase* eventBase) {
+  std::shared_ptr<folly::Acceptor> newAcceptor(
+      folly::EventBase* eventBase) override {
     return std::make_shared<Cpp2Worker>(server_, nullptr, eventBase);
   }
  private:
@@ -348,15 +349,21 @@ void ThriftServer::setup() {
       }
 
     } else {
-      CHECK(ioThreadPool_->numThreads() == 0);
+      CHECK(configMutable());
       duplexWorker_ = folly::make_unique<Cpp2Worker>(this, serverChannel_);
     }
+
+    // Do not allow setters to be called past this point until the IO worker
+    // threads have been joined in stopWorkers().
+    configMutable_ = false;
+  } catch (std::exception& ex) {
+    // This block allows us to investigate the exception using gdb
+    LOG(FATAL) << "Got an exception while setting up the server: "
+      << ex.what();
+    handleSetupFailure();
+    throw;
   } catch (...) {
-    ServerBootstrap::stop();
-
-    // avoid crash on stop()
-    serveEventBase_ = nullptr;
-
+    handleSetupFailure();
     throw;
   }
 }
@@ -428,7 +435,16 @@ void ThriftServer::stopWorkers() {
   }
   ServerBootstrap::stop();
   ServerBootstrap::join();
+  configMutable_ = true;
 }
+
+void ThriftServer::handleSetupFailure(void) {
+  ServerBootstrap::stop();
+
+  // avoid crash on stop()
+  serveEventBase_ = nullptr;
+}
+
 
 void ThriftServer::immediateShutdown(bool abortConnections) {
   shutdownSocketSet_->shutdownAll(abortConnections);
@@ -561,7 +577,10 @@ int64_t ThriftServer::getLoad(const std::string& counter, bool check_custom) {
 
   auto tm = getThreadManager();
   if (tm) {
-    queueload = tm->getCodel()->getLoad();
+    auto codel = tm->getCodel();
+    if (codel) {
+      queueload = codel->getLoad();
+    }
   }
 
   if (VLOG_IS_ON(1) && workerFactory) {

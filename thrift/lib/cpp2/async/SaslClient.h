@@ -34,7 +34,7 @@ class SaslClient : public SaslEndpoint {
  public:
   class Callback : public apache::thrift::async::HHWheelTimer::Callback {
    public:
-    virtual ~Callback() {}
+    ~Callback() override {}
 
     // This will be called just before the kerberos operation starts.
     // This allows the caller to implement more effective timeouts.
@@ -51,7 +51,7 @@ class SaslClient : public SaslEndpoint {
     // SASL exchange successfully.
     virtual void saslComplete() = 0;
 
-    void timeoutExpired() noexcept {
+    void timeoutExpired() noexcept override {
       using apache::thrift::transport::TTransportException;
       saslError(folly::make_exception_wrapper<TTransportException>(
           TTransportException::SASL_HANDSHAKE_TIMEOUT,
@@ -69,7 +69,8 @@ class SaslClient : public SaslEndpoint {
   virtual void setClientIdentity(const std::string& identity) = 0;
   virtual void setServiceIdentity(const std::string& identity) = 0;
   virtual void setRequiredServicePrincipalFetcher(
-    std::function<std::pair<std::string, std::string>()> function) {}
+    std::function<std::tuple<std::string, std::string, std::string>()>
+      function) {}
   virtual void setSecurityMech(const SecurityMech& mech) {
     securityMech_ = std::make_shared<SecurityMech>(mech);
   }

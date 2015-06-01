@@ -44,6 +44,7 @@ thrift2include_async_HEADERS = \
 	async/AsyncProcessor.h \
 	async/Cpp2Channel.h \
 	async/ProtectionHandler.h \
+	async/FramingHandler.h \
 	async/HeaderChannel.h \
 	async/DuplexChannel.h \
 	async/FutureRequest.h \
@@ -95,6 +96,7 @@ thrift2include_protocol_HEADERS = \
 	protocol/VirtualProtocol.h
 
 libthriftcpp2_la_SOURCES = Version.cpp \
+			   async/HeaderChannel.cpp \
 			   async/HeaderClientChannel.cpp \
 			   async/HeaderServerChannel.cpp \
 			   async/StubSaslClient.cpp \
@@ -104,6 +106,7 @@ libthriftcpp2_la_SOURCES = Version.cpp \
 			   async/GssSaslServer.cpp \
 			   async/Cpp2Channel.cpp \
 			   async/ProtectionHandler.cpp \
+			   async/FramingHandler.cpp \
 			   async/AsyncProcessor.cpp \
 			   async/DuplexChannel.cpp \
 			   protocol/Serializer.cpp \

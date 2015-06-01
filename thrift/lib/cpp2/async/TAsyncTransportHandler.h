@@ -37,7 +37,7 @@ class TAsyncTransportHandler
 
   TAsyncTransportHandler(TAsyncTransportHandler&&) = default;
 
-  ~TAsyncTransportHandler() {
+  ~TAsyncTransportHandler() override {
     if (transport_) {
       detachReadCallback();
     }
@@ -64,6 +64,10 @@ class TAsyncTransportHandler
     if (transport_->getEventBase()) {
       transport_->detachEventBase();
     }
+  }
+
+  void attachPipeline(Context* ctx) override {
+    ctx->getPipeline()->setTransport(transport_);
   }
 
   folly::Future<void> write(

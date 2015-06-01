@@ -62,19 +62,19 @@ class t_hack_generator : public t_oop_generator {
    * Init and close methods
    */
 
-  void init_generator();
-  void close_generator();
+  void init_generator() override;
+  void close_generator() override;
 
   /**
    * Program-level generation functions
    */
 
-  void generate_typedef  (t_typedef*  ttypedef);
-  void generate_enum     (t_enum*     tenum);
-  void generate_const    (t_const*    tconst);
-  void generate_struct   (t_struct*   tstruct);
-  void generate_xception (t_struct*   txception);
-  void generate_service  (t_service*  tservice);
+  void generate_typedef(t_typedef* ttypedef) override;
+  void generate_enum(t_enum* tenum) override;
+  void generate_const(t_const* tconst) override;
+  void generate_struct(t_struct* tstruct) override;
+  void generate_xception(t_struct* txception) override;
+  void generate_service(t_service* tservice) override;
 
   std::string render_const_value(t_type* type, t_const_value* value);
   std::string render_default_value(t_type* type);
@@ -1851,9 +1851,13 @@ void t_hack_generator::generate_service_processor(t_service* tservice,
     indent() << "$methodname = 'process_'.$fname;" << endl <<
     indent() << "if (!method_exists($this, $methodname)) {" << endl;
   f_service_ <<
+    indent() << "  $handler_ctx = $this->eventHandler_->getHandlerContext($methodname);" << endl <<
+    indent() << "  $this->eventHandler_->preRead($handler_ctx, $methodname, array());" << endl <<
     indent() << "  $input->skip(TType::STRUCT);" << endl <<
     indent() << "  $input->readMessageEnd();" << endl <<
+    indent() << "  $this->eventHandler_->postRead($handler_ctx, $methodname, array());" << endl <<
     indent() << "  $x = new TApplicationException('Function '.$fname.' not implemented.', TApplicationException::UNKNOWN_METHOD);" << endl <<
+    indent() << "  $this->eventHandler_->handlerError($handler_ctx, $methodname, $x);" << endl <<
     indent() << "  $output->writeMessageBegin($fname, TMessageType::EXCEPTION, $rseqid);" << endl <<
     indent() << "  $x->write($output);" << endl <<
     indent() << "  $output->writeMessageEnd();" << endl <<
@@ -1988,7 +1992,7 @@ void t_hack_generator::generate_process_function(t_service* tservice,
     indent() << "  $reply_type = TMessageType::EXCEPTION;" << endl <<
     indent() << "  $this->eventHandler_->handlerError($handler_ctx, '"
              << fn_name << "', $ex);" << endl <<
-    indent() << "  $result = new TApplicationException($ex->getMessage());"
+    indent() << "  $result = new TApplicationException($ex->getMessage().\"\\n\".$ex->getTraceAsString());"
              << endl <<
     indent() << "}" << endl;
 
@@ -2421,7 +2425,10 @@ void t_hack_generator::_generate_service_client(
   generate_php_docstring(out, tservice);
   string extends = "";
   string extends_client = "";
-  if (tservice->get_extends() != nullptr) {
+  bool root = tservice->get_extends() == nullptr;
+  if (root) {
+    out << "<<__ConsistentConstruct>>" << endl;
+  } else {
     extends = php_servicename_mangle(mangle, tservice->get_extends());
     extends_client = " extends " + extends + "Client";
   }
@@ -2445,15 +2452,17 @@ void t_hack_generator::_generate_service_client(
   }
 
   // Factory
-  indent(out) << "public static function factory(): Pair<string, (function (TProtocol, ?TProtocol): " << long_name << "Client)> {" << endl;
-  indent_up();
-  indent(out) << "return Pair {__CLASS__, function(TProtocol $input, ?TProtocol $output) {" << endl;
-  indent_up();
-  indent(out) << "return new self($input, $output);" << endl;
-  indent_down();
-  indent(out) << "}};" << endl;
-  indent_down();
-  indent(out) << "}" << endl << endl;
+  if (root) {
+    indent(out) << "final public static function factory(): (string, (function (TProtocol, ?TProtocol): this)) {" << endl;
+    indent_up();
+    indent(out) << "return tuple(get_called_class(), function(TProtocol $input, ?TProtocol $output) {" << endl;
+    indent_up();
+    indent(out) << "return new static($input, $output);" << endl;
+    indent_down();
+    indent(out) << "});" << endl;
+    indent_down();
+    indent(out) << "}" << endl << endl;
+  }
 
   // Constructor function
   out << indent() << "public function __construct("
@@ -2467,8 +2476,7 @@ void t_hack_generator::_generate_service_client(
       indent() << "$this->input_ = $input;" << endl <<
       indent() << "$this->output_ = $output ?: $input;" << endl <<
       indent() << "$this->asyncHandler_ = new TClientAsyncHandler();" << endl <<
-      indent() << "$this->eventHandler_ = new TClientEventHandler();" << endl <<
-      indent() << "$this->eventHandler_->setClient($this);" << endl;
+      indent() << "$this->eventHandler_ = new TClientEventHandler();" << endl;
     indent_down();
   }
   out <<
