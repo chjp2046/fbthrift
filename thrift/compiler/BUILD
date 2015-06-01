@@ -62,6 +62,7 @@ cc_binary(
 	    'generate/t_rb_generator.cc',
 		'generate/t_perl_generator.cc',
 	    'generate/t_php_generator.cc',
+        'generate/t_hack_generator.cc',
 		'generate/t_erl_generator.cc',
 	    'generate/t_cocoa_generator.cc',
 		'generate/t_st_generator.cc',

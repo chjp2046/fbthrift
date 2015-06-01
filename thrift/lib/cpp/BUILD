@@ -4,6 +4,17 @@ cc_library(
 		'EventHandlerBase.cpp',
 		'Thrift.cpp',
 		'VirtualProfiling.cpp',
+        'async/TAsyncSocketFactory.cpp',
+        'async/TAsyncSSLSocketFactory.cpp',
+        'async/TBinaryAsyncChannel.cpp',
+        'async/TEventConnection.cpp',
+        'async/TEventServer.cpp',
+        'async/TEventTask.cpp',
+        'async/TEventWorker.cpp',
+        'async/TFramedAsyncChannel.cpp',
+        'async/THeaderAsyncChannel.cpp',
+        'async/THttpAsyncChannel.cpp',
+        'async/TUnframedAsyncChannel.cpp',
 	    'concurrency/ThreadManager.cpp',
 		'concurrency/TimerManager.cpp',
 	    'concurrency/Util.cpp',
@@ -61,7 +72,8 @@ cc_library(
 cc_library(
 	name = "thriftz",
 	srcs = [
-		'transport/TZlibTransport.cpp'
+		'async/TZlibAsyncChannel.cpp',
+        'transport/TZlibTransport.cpp'
 	],
 	deps = [
 		'//folly:folly',

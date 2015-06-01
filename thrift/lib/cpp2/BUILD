@@ -30,6 +30,7 @@ cc_library(
 	name = "thriftcpp2",
 	srcs = [
 		'Version.cpp',
+        'async/HeaderChannel.cpp',
 		'async/HeaderClientChannel.cpp',
 		'async/HeaderServerChannel.cpp',
 		'async/StubSaslClient.cpp',
@@ -39,6 +40,7 @@ cc_library(
 		'async/GssSaslServer.cpp',
 		'async/Cpp2Channel.cpp',
         'async/ProtectionHandler.cpp',
+        'async/FramingHandler.cpp',
 		'async/AsyncProcessor.cpp',
 		'async/DuplexChannel.cpp',
 		'protocol/Serializer.cpp',
