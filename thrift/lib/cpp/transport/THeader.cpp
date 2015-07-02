@@ -65,11 +65,14 @@ const string THeader::CLIENT_TIMEOUT_HEADER = "client_timeout";
 
 string THeader::s_identity = "";
 
+static const string THRIFT_AUTH_HEADER = "thrift_auth";
+
 THeader::THeader()
   : queue_(new folly::IOBufQueue)
   , protoId_(T_COMPACT_PROTOCOL)
   , protoVersion(-1)
   , clientType(THRIFT_HEADER_CLIENT_TYPE)
+  , forceClientType_(false)
   , seqId(0)
   , flags_(0)
   , identity(s_identity)
@@ -102,6 +105,83 @@ bool THeader::compactFramed(uint32_t magic) {
 
 }
 
+unique_ptr<IOBuf> THeader::removeUnframed(
+    IOBufQueue* queue,
+    size_t& needed) {
+  const_cast<IOBuf*>(queue->front())->coalesce();
+
+  // Test skip using the protocol to detect the end of the message
+  TMemoryBuffer memBuffer(const_cast<uint8_t*>(queue->front()->data()),
+                          queue->front()->length(), TMemoryBuffer::OBSERVE);
+  TBinaryProtocolT<TBufferBase> proto(&memBuffer);
+  uint32_t msgSize = 0;
+  try {
+    std::string name;
+    protocol::TMessageType messageType;
+    int32_t seqid;
+    msgSize += proto.readMessageBegin(name, messageType, seqid);
+    msgSize += protocol::skip(proto, protocol::T_STRUCT);
+    msgSize += proto.readMessageEnd();
+  } catch (const TTransportException& ex) {
+    if (ex.getType() == TTransportException::END_OF_FILE) {
+      // We don't have the full data yet.  We can't tell exactly
+      // how many bytes we need, but it is at least one.
+      needed = 1;
+      return nullptr;
+    }
+  }
+
+  return std::move(queue->split(msgSize));
+}
+
+unique_ptr<IOBuf> THeader::removeHttpServer(IOBufQueue* queue) {
+    // Users must explicitly support this.
+    return queue->move();
+}
+
+unique_ptr<IOBuf> THeader::removeHttpClient(IOBufQueue* queue, size_t& needed) {
+  TMemoryBuffer memBuffer;
+  THttpClientParser parser;
+  parser.setDataBuffer(&memBuffer);
+  const IOBuf* headBuf = queue->front();
+  const IOBuf* nextBuf = headBuf;
+  bool success = false;
+  do {
+    auto remainingDataLen = nextBuf->length();
+    size_t offset = 0;
+    auto ioBufData = nextBuf->data();
+    do {
+      void* parserBuf;
+      size_t parserBufLen;
+      parser.getReadBuffer(&parserBuf, &parserBufLen);
+      size_t toCopyLen = std::min(parserBufLen, remainingDataLen);
+      memcpy(parserBuf, ioBufData + offset, toCopyLen);
+      success |= parser.readDataAvailable(toCopyLen);
+      remainingDataLen -= toCopyLen;
+      offset += toCopyLen;
+    } while (remainingDataLen > 0);
+    nextBuf = nextBuf->next();
+  } while (nextBuf != headBuf);
+  if (!success) {
+    // We don't have full data yet and we don't know how many bytes we need,
+    // but it is at least 1.
+    needed = 1;
+    return nullptr;
+  }
+
+  // Empty the queue
+  queue->move();
+  readHeaders_ = parser.moveReadHeaders();
+
+  return std::move(memBuffer.cloneBufferAsIOBuf());
+}
+
+unique_ptr<IOBuf> THeader::removeFramed(uint32_t sz, IOBufQueue* queue) {
+  // Trim off the frame size.
+  queue->trimStart(4);
+  return queue->split(sz);
+}
+
 unique_ptr<IOBuf> THeader::removeHeader(
   IOBufQueue* queue,
   size_t& needed,
@@ -119,78 +199,40 @@ unique_ptr<IOBuf> THeader::removeHeader(
   // Use first word to check type.
   uint32_t sz = c.readBE<uint32_t>();
 
+  if (forceClientType_) {
+    switch (clientType) {
+    case THRIFT_FRAMED_DEPRECATED:
+    case THRIFT_FRAMED_COMPACT:
+      // Make sure we have read the whole frame in.
+      if (4 + sz > chainSize) {
+        needed = sz - chainSize + 4;
+        return nullptr;
+      }
+      return removeFramed(sz, queue);
+    case THRIFT_UNFRAMED_DEPRECATED:
+      return removeUnframed(queue, needed);
+    case THRIFT_HTTP_SERVER_TYPE:
+      removeHttpServer(queue);
+    case THRIFT_HTTP_CLIENT_TYPE:
+      return removeHttpClient(queue, needed);
+    default:
+      // Fallback to sniffing out the magic for Header
+      break;
+    };
+  }
+
   if ((sz & TBinaryProtocol::VERSION_MASK) == TBinaryProtocol::VERSION_1) {
     // unframed
     clientType = THRIFT_UNFRAMED_DEPRECATED;
-    const_cast<IOBuf*>(queue->front())->coalesce();
-
-    // Test skip using the protocol to detect the end of the message
-    TMemoryBuffer memBuffer(const_cast<uint8_t*>(queue->front()->data()),
-                            queue->front()->length(), TMemoryBuffer::OBSERVE);
-    TBinaryProtocolT<TBufferBase> proto(&memBuffer);
-    uint32_t msgSize = 0;
-    try {
-      std::string name;
-      protocol::TMessageType messageType;
-      int32_t seqid;
-      msgSize += proto.readMessageBegin(name, messageType, seqid);
-      msgSize += protocol::skip(proto, protocol::T_STRUCT);
-      msgSize += proto.readMessageEnd();
-    } catch (const TTransportException& ex) {
-      if (ex.getType() == TTransportException::END_OF_FILE) {
-        // We don't have the full data yet.  We can't tell exactly
-        // how many bytes we need, but it is at least one.
-        needed = 1;
-        return nullptr;
-      }
-    }
-
-    buf = std::move(queue->split(msgSize));
+    buf = removeUnframed(queue, needed);
   } else if (sz == HTTP_SERVER_MAGIC ||
             sz == HTTP_GET_CLIENT_MAGIC ||
             sz == HTTP_HEAD_CLIENT_MAGIC) {
     clientType = THRIFT_HTTP_SERVER_TYPE;
-
-    // Users must explicitly support this.
-
-    buf = queue->move();
+    buf = removeHttpServer(queue);
   } else if (sz == HTTP_CLIENT_MAGIC) {
     clientType = THRIFT_HTTP_CLIENT_TYPE;
-
-    TMemoryBuffer memBuffer;
-    THttpClientParser parser;
-    parser.setDataBuffer(&memBuffer);
-    const IOBuf* headBuf = queue->front();
-    const IOBuf* nextBuf = headBuf;
-    bool success = false;
-    do {
-      auto remainingDataLen = nextBuf->length();
-      size_t offset = 0;
-      auto ioBufData = nextBuf->data();
-      do {
-        void* parserBuf;
-        size_t parserBufLen;
-        parser.getReadBuffer(&parserBuf, &parserBufLen);
-        size_t toCopyLen = std::min(parserBufLen, remainingDataLen);
-        memcpy(parserBuf, ioBufData + offset, toCopyLen);
-        success |= parser.readDataAvailable(toCopyLen);
-        remainingDataLen -= toCopyLen;
-        offset += toCopyLen;
-      } while (remainingDataLen > 0);
-      nextBuf = nextBuf->next();
-    } while (nextBuf != headBuf);
-    if (!success) {
-      // We don't have full data yet and we don't know how many bytes we need,
-      // but it is at least 1.
-      needed = 1;
-      return nullptr;
-    }
-    buf = std::move(memBuffer.cloneBufferAsIOBuf());
-
-    readHeaders_ = parser.moveReadHeaders();
-
-    // Empty the queue
-    queue->move();
+    buf = removeHttpClient(queue, needed);
   } else {
     if (sz > MAX_FRAME_SIZE) {
       std::string err =
@@ -228,15 +270,10 @@ unique_ptr<IOBuf> THeader::removeHeader(
     if ((magic & TBinaryProtocol::VERSION_MASK) == TBinaryProtocol::VERSION_1) {
       // framed
       clientType = THRIFT_FRAMED_DEPRECATED;
-
-      // Trim off the frame size.
-      queue->trimStart(4);
-      buf = queue->split(sz);
+      buf = removeFramed(sz, queue);
     } else if (compactFramed(magic)) {
       clientType = THRIFT_FRAMED_COMPACT;
-      // Trim off the frame size.
-      queue->trimStart(4);
-      buf = queue->split(sz);
+      buf = removeFramed(sz, queue);
     } else if (HEADER_MAGIC == (magic & HEADER_MASK)) {
       if (sz < 10) {
         throw TTransportException(
@@ -253,7 +290,7 @@ unique_ptr<IOBuf> THeader::removeHeader(
 
       // auth client?
       clientType = THRIFT_HEADER_CLIENT_TYPE;
-      auto auth_header = getHeaders().find("thrift_auth");
+      auto auth_header = getHeaders().find(THRIFT_AUTH_HEADER);
       if (auth_header != getHeaders().end()) {
         if (auth_header->second == "1") {
           clientType = THRIFT_HEADER_SASL_CLIENT_TYPE;

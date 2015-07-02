@@ -35,8 +35,10 @@ thrift2includedir = $(includedir)/thrift/lib/cpp2
 
 thrift2include_HEADERS = \
 	Thrift.h \
+	GeneratedCodeHelper.h \
 	ServiceIncludes.h \
-	CloneableIOBuf.h
+	CloneableIOBuf.h \
+	TestServer.h
 
 thrift2include_asyncdir = $(thrift2includedir)/async
 
@@ -84,6 +86,7 @@ thrift2include_protocoldir = $(thrift2includedir)/protocol
 
 thrift2include_protocol_HEADERS = \
 	protocol/Protocol.h \
+	protocol/ProtocolReaderWithRefill.h \
 	protocol/BinaryProtocol.h \
 	protocol/BinaryProtocol.tcc \
 	protocol/CompactProtocol.h \
@@ -139,7 +142,15 @@ libthriftcpp2_la_SOURCES = Version.cpp \
                            ../cpp/concurrency/NumaThreadManager.cpp
 
 
-libthriftcpp2_la_LIBADD = ../cpp/libthrift.la libsaslstubs.a -lkrb5 -lgssapi_krb5 -lsnappy -lnuma -lboost_thread
+libthriftcpp2_la_LIBADD = \
+	../cpp/libthrift.la \
+	libsaslstubs.a \
+	$(FOLLY_LIBS) \
+	-lkrb5 \
+	-lgssapi_krb5 \
+	-lboost_system \
+	-lboost_thread
+
 libthriftcpp2_la_LDFLAGS = -version-info $(LT_VERSION) $(BOOST_LDFLAGS)
 libthriftcpp2_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBEVENT_CPPFLAGS) -I../cpp -I$(top_builddir)/../../gperftools-2.0.99/src
 

@@ -59,6 +59,7 @@ libthrift_la_SOURCES = EventHandlerBase.cpp \
                        protocol/TJSONProtocol.cpp \
                        protocol/TBase64Utils.cpp \
                        protocol/TMultiplexedProtocol.cpp \
+                       protocol/TSimpleJSONProtocol.cpp \
                        transport/TTransportException.cpp \
                        transport/TFDTransport.cpp \
                        transport/TFileTransport.cpp \
@@ -94,6 +95,8 @@ libthriftz_la_SOURCES = \
 
 
 # Flags for the various libraries
+libthrift_la_LIBADD     = $(FOLLY_LIBS) -lboost_system -lboost_thread
+
 libthriftz_la_CPPFLAGS  = $(AM_CPPFLAGS) $(ZLIB_CPPFLAGS)
 libthriftz_la_CXXFLAGS  = $(AM_CXXFLAGS)
 libthriftz_la_LDFLAGS   = -version-info $(LT_VERSION) $(BOOST_LDFLAGS)
@@ -141,6 +144,7 @@ include_protocol_HEADERS = \
                          protocol/TProtocolTap.h \
                          protocol/TProtocolException.h \
                          protocol/TVirtualProtocol.h \
+                         protocol/TType.h \
                          protocol/TProtocol.h
 
 

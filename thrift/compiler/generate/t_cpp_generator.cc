@@ -1043,11 +1043,14 @@ void t_cpp_generator::generate_consts(std::vector<t_const*> consts) {
       f_consts << type_name(type) << ' ';
     }
     f_consts << "const ";
+    if (!inlined) {
+      f_consts << '&';
+    }
+    f_consts << name << "()";
     if (inlined) {
-      f_consts << name << " = " << render_const_value(f_consts, type, value)
-        << ';' << endl;
+      f_consts << " { return " << name << "_; }" << endl;
     } else {
-      f_consts << '&' << name << "();" << endl;
+      f_consts << ';' << endl;
     }
   }
   indent_down();
@@ -1071,24 +1074,9 @@ void t_cpp_generator::generate_consts(std::vector<t_const*> consts) {
         << "_;" << endl;
     }
 
-    f_consts_impl << indent();
-    if (inlined) {
-      f_consts_impl << "constexpr ";
-    }
-    if (type->is_string()) {
-      f_consts_impl << "char const *";
-    } else {
-      f_consts_impl << type_name(type) << ' ';
-    }
-    f_consts_impl << "const ";
     if (!inlined) {
-      f_consts_impl << "&";
-    }
-    f_consts_impl << program_name_ << "_constants::" << name;
-    if (inlined) {
-      f_consts_impl << ';' << endl;
-    } else {
-      f_consts_impl << "() {" << endl;
+      f_consts_impl << indent() << type_name(type) << " const &"
+        << program_name_ << "_constants::" << name << "() {" << endl;
       indent_up();
       f_consts_impl << indent() << "static auto const instance([]() {" << endl;
       indent_up();
@@ -1174,7 +1162,7 @@ void t_cpp_generator::generate_consts(std::vector<t_const*> consts) {
       << program_name_ << "Constants suffers from the 'static initialization "
       "order fiasco' (https://isocpp.org/wiki/faq/ctors#static-init-order) and "
       "may CRASH your program. Instead, use " << program_name_ <<
-      "_constants::CONSTANT_NAME\"))) " <<
+      "_constants::CONSTANT_NAME()\"))) " <<
       program_name_ << "Constants {" << endl <<
     "public:" << endl <<
     "  " << program_name_ << "Constants();" << endl <<
@@ -1219,7 +1207,7 @@ void t_cpp_generator::generate_consts(std::vector<t_const*> consts) {
       "__deprecated__(\"g_" << program_name_ << "_constants suffers from the "
       "'static initialization order fiasco' (https://isocpp.org/wiki/faq/ctors"
       "#static-init-order) and may CRASH your program. Instead, use " <<
-      program_name_ << "_constants::CONSTANT_NAME\"))) g_" <<
+      program_name_ << "_constants::CONSTANT_NAME()\"))) g_" <<
       program_name_ << "_constants;" << endl << endl;
   f_consts << "#pragma GCC diagnostic pop" << endl;
 
@@ -1325,6 +1313,12 @@ string t_cpp_generator::render_const_value(
                           t_const_value* value,
                           bool           allow_null_val) {
   std::ostringstream render;
+
+  // Resolve typedefs.
+  while (type->is_typedef()) {
+    type = ((t_typedef*)type)->get_type();
+  }
+
   if (value == nullptr) {
     if (allow_null_val) {
       if (type->is_enum()) {
@@ -6465,17 +6459,26 @@ void t_cpp_generator::generate_deserialize_struct(ofstream& out,
       ">(new " << type_name(tstruct) << ");" << endl;
     indent(out) <<
       "xfer += " << prefix << "->read(iprot);" << endl;
-    indent(out) << "if (false) {" << endl;
-    for (auto& member : tstruct->get_members()) {
-      if (is_reference(member)){
-        indent(out) << "} else if (" << prefix << "->" << member->get_name()
-                    << ") {" << endl;
-      } else if (has_isset(member)) {
-        indent(out) << "} else if (" << prefix << "->__isset."
-                    << member->get_name() << ") {" << endl;
+    if (tstruct->is_union()) {
+      indent(out) << "if (" << prefix << "->getType() == "
+                  << type_name(tstruct) << "::Type::__EMPTY__) {" << endl;
+      indent_up();
+      indent(out) << prefix << " = nullptr; " << endl;
+      indent_down();
+      indent(out) << "}" << endl;
+    } else {
+      indent(out) << "if (false) {" << endl;
+      for (auto& member : tstruct->get_members()) {
+        if (is_reference(member)){
+          indent(out) << "} else if (" << prefix << "->" << member->get_name()
+                      << ") {" << endl;
+        } else if (has_isset(member)) {
+          indent(out) << "} else if (" << prefix << "->__isset."
+                      << member->get_name() << ") {" << endl;
+        }
       }
+      indent(out) << "} else { " << prefix << " = nullptr; }" << endl;
     }
-    indent(out) << "} else { " << prefix << " = nullptr; }" << endl;
   } else {
     indent(out) <<
       "xfer += " << prefix << ".read(iprot);" << endl;

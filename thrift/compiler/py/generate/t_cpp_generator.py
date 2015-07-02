@@ -354,6 +354,45 @@ class CppGenerator(t_generator.Generator):
                 else 'HandlerCallback'
         return 'apache::thrift::{0}<{1}>'.format(cb, rettype)
 
+    def _get_presult_success(self):
+        if self.flag_compatibility:
+            return 'result.success'
+        else:
+            return 'result.get<0>().value'
+    def _get_presult_success_isset(self, value_if_set=None):
+        if self.flag_compatibility:
+            if value_if_set is None:
+                return 'result.__isset.success'
+            else:
+                return 'result.__isset.success = {0}'.format(value_if_set)
+        else:
+            if value_if_set is None:
+                return 'result.getIsSet(0)'
+            else:
+                return 'result.setIsSet(0, {0})'.format(value_if_set)
+    def _get_presult_exception(self, ex_idx, e):
+        if self.flag_compatibility:
+            return 'result.{0}'.format(e.name)
+        else:
+            return 'result.get<{0}>().ref()'.format(ex_idx)
+    def _get_presult_exception_isset(self, ex_idx, e, value_if_set=None):
+        if self.flag_compatibility:
+            if value_if_set is None:
+                return 'result.__isset.{0}'.format(e.name)
+            else:
+                return 'result.__isset.{0} = {1}'.format(e.name, value_if_set)
+        else:
+            if value_if_set is None:
+                return 'result.getIsSet({0})'.format(ex_idx)
+            else:
+                return 'result.setIsSet({0}, {1})'.format(ex_idx, value_if_set)
+    def _get_pargs_field(self, idx, f, pointer=True):
+        if self.flag_compatibility:
+            return '{0}args.{1}'.format('' if pointer else '*', f.name)
+        else:
+            return 'args.get<{0}>().{1}'.format(idx,
+                    'value' if pointer else 'ref()')
+
     def _generate_enum_constant_list(self, enum, constants, quote_names,
                                       include_values):
         if include_values:
@@ -586,13 +625,13 @@ class CppGenerator(t_generator.Generator):
         s = s.namespace(self._get_namespace()).scope
         s.acquire()
 
+        self._generate_service_helpers(service, s)
         self._generate_service_server_interface_async(service, s)
         s('class ' + service.name + 'AsyncProcessor;')
         self._generate_service_server_interface(service, s)
         self._generate_service_server_null(service, s)
         self._generate_processor(service, s)
         self._generate_service_client(service, s)
-        self._generate_service_helpers(service, s)
 
         # make sure that the main types namespace is closed
         s.release()
@@ -612,15 +651,16 @@ class CppGenerator(t_generator.Generator):
         s.acquire()
         for function in service.functions:
             arglist = function.arglist
-            if self.flag_stack_arguments:
-                arglist.name = "{0}_{1}_args".format(service.name, function.name)
+            if self.flag_compatibility:
+                if self.flag_stack_arguments:
+                    arglist.name = "{0}_{1}_args".format(service.name, function.name)
+                    self._generate_cpp2ops(True, arglist, s)
+                arglist.name = "{0}_{1}_pargs".format(service.name, function.name)
                 self._generate_cpp2ops(True, arglist, s)
-            arglist.name = "{0}_{1}_pargs".format(service.name, function.name)
-            self._generate_cpp2ops(True, arglist, s)
 
-            if not function.oneway:
-                result = self._get_presult_object(service, function)
-                self._generate_cpp2ops(True, result, s)
+                if not function.oneway:
+                    result = self._get_presult_object(service, function)
+                    self._generate_cpp2ops(True, result, s)
         s.release()
 
     def _get_presult_object(self, service, function):
@@ -640,51 +680,89 @@ class CppGenerator(t_generator.Generator):
     def _generate_service_helpers(self, service, s):
         for function in service.functions:
             arglist = function.arglist
-            name_orig = arglist.name
-            if self.flag_stack_arguments:
-                arglist.name = "{0}_{1}_args".format(service.name, function.name)
+            if self.flag_compatibility:
+                name_orig = arglist.name
+                if self.flag_stack_arguments:
+                    arglist.name = "{0}_{1}_args".format(service.name, function.name)
+                    self._generate_struct_complete(s, arglist,
+                                                   is_exception=False,
+                                                   pointers=False,
+                                                   read=True,
+                                                   write=True,
+                                                   swap=False,
+                                                   result=False,
+                                                   to_additional=True,
+                                                   simplejson=False)
+                arglist.name = "{0}_{1}_pargs".format(service.name, function.name)
                 self._generate_struct_complete(s, arglist,
-                                               is_exception=False,
-                                               pointers=False,
-                                               read=True,
-                                               write=True,
-                                               swap=False,
-                                               result=False,
-                                               to_additional=True,
-                                               simplejson=False)
-            arglist.name = "{0}_{1}_pargs".format(service.name, function.name)
-            self._generate_struct_complete(s, arglist,
-                                           is_exception=False,
-                                           pointers=True,
-                                           read=True,
-                                           write=True,
-                                           swap=False,
-                                           result=False,
-                                           has_isset=False,
-                                           to_additional=True,
-                                           simplejson=False)
-            arglist.name = name_orig
-
-            if not function.oneway:
-                # WTF Using _get_presult_object causes a segmentation fault?
-                result = frontend.t_struct(
-                    self.program,
-                    "{0}_{1}_presult".format(service.name, function.name))
-                success = frontend.t_field(function.returntype, "success", 0)
-                if not function.returntype.is_void:
-                    result.append(success)
-                xs = function.xceptions
-                for field in xs.members:
-                    result.append(field)
-                self._generate_struct_complete(s, result,
                                                is_exception=False,
                                                pointers=True,
                                                read=True,
                                                write=True,
                                                swap=False,
-                                               result=True,
+                                               result=False,
+                                               has_isset=False,
                                                to_additional=True,
                                                simplejson=False)
+                arglist.name = name_orig
+            else:
+                def generate_pargs(suffix, pargs):
+                    flist = ['apache::thrift::FieldData<{0}, {1}, {2}{3}>'.format(
+                                arg.key,
+                                self._type_to_enum(arg.type),
+                                self._type_name(arg.type),
+                                suffix)
+                                    for arg in arglist.members]
+                    pargs = "{0}_{1}_{2}".format(service.name, function.name, pargs)
+                    flist.insert(0, 'false')
+                    fstr = ", ".join(flist)
+                    print >>self._out_tcc, \
+                        'typedef apache::thrift::ThriftPresult<{0}> {1};'.format(
+                            fstr, pargs)
+                if self.flag_stack_arguments:
+                    generate_pargs('', 'args')
+                generate_pargs('*', 'pargs')
+
+
+            if not function.oneway:
+                if self.flag_compatibility:
+                    # WTF Using _get_presult_object causes a segmentation fault?
+                    result = frontend.t_struct(
+                         self.program,
+                         "{0}_{1}_presult".format(service.name, function.name))
+                    success = frontend.t_field(function.returntype, "success", 0)
+                    if not function.returntype.is_void:
+                        result.append(success)
+                    xs = function.xceptions
+                    for field in xs.members:
+                        result.append(field)
+                    self._generate_struct_complete(s, result,
+                                                   is_exception=False,
+                                                   pointers=True,
+                                                   read=True,
+                                                   write=True,
+                                                   swap=False,
+                                                   result=True,
+                                                   to_additional=True,
+                                                   simplejson=False)
+                else:
+                    flist = ['apache::thrift::FieldData<{0}, '
+                             'apache::thrift::protocol::T_STRUCT, {1}>'.format(
+                                field.key, self._type_name(field.type))
+                                    for field in function.xceptions.members]
+                    if not function.returntype.is_void:
+                        type = self._type_name(function.returntype)
+                        ttype = self._type_to_enum(function.returntype)
+                        flist.insert(0, 'apache::thrift::FieldData<0, {0}, {1}*>'
+                            .format(ttype, type))
+
+                    presult = "{0}_{1}_presult".format(service.name, function.name)
+                    flist.insert(0, 'true')
+                    fstr = ", ".join(flist)
+
+                    print >>self._out_tcc, \
+                        'typedef apache::thrift::ThriftPresult<{0}> {1};'.format(
+                            fstr, presult)
 
     def _generate_service_client(self, service, s):
         classname = service.name + "AsyncClient"
@@ -1123,7 +1201,7 @@ class CppGenerator(t_generator.Generator):
             out('{0}_{1}_args args;'.format(service.name, function.name))
         else:
             out('{0}_{1}_pargs args;'.format(service.name, function.name))
-        for field in function.arglist.members:
+        for idx, field in enumerate(function.arglist.members):
             val = ""
             t = self._get_true_type(field.type)
             if t.is_base_type or t.is_enum:
@@ -1133,17 +1211,16 @@ class CppGenerator(t_generator.Generator):
             elif self._is_complex_type(field.type):
                 out('std::unique_ptr<{0}> {1}(new {0}({2}));'.format(
                         self._type_name(field.type), aprefix + field.name, val))
-                out('args.{0} = {1}.get();'.format(
-                        field.name, aprefix + field.name))
+                out('{0} = {1}.get();'.format(
+                        self._get_pargs_field(idx, field),
+                        aprefix + field.name))
             else:
                 # use uniform initialization syntax to avoid most vexing parse
                 out('{0} {1}{{{2}}};'.format(
                         self._type_name(field.type), aprefix + field.name, val))
-                ref_prefix = "&"
-                if self.flag_stack_arguments:
-                    ref_prefix = ""
-                out('args.{0} = {2}{1};'.format(
-                        field.name, aprefix + field.name, ref_prefix))
+                out('{0} = &{1};'.format(
+                        self._get_pargs_field(idx, field),
+                        aprefix + field.name))
         out(('std::unique_ptr<apache::thrift::' +
            'ContextStack> c(this->getContextStack' +
            '(this->getServiceName(), "{0}.{1}", ctx));'
@@ -1162,14 +1239,14 @@ class CppGenerator(t_generator.Generator):
                                       False, out, 'ctx', False,
                                       'PROTOCOL_ERROR')
         args = []
-        for member in function.arglist.members:
+        for idx, member in enumerate(function.arglist.members):
             if self.flag_stack_arguments:
-                args.append("args." + member.name)
+                args.append(self._get_pargs_field(idx, member))
             elif self._is_complex_type(member.type):
                 args.append("std::move({0})".format(
                         aprefix + member.name))
             else:
-                args.append("*args." + member.name)
+                args.append(self._get_pargs_field(idx, member, False))
         if function.oneway:
             out('std::unique_ptr<apache::thrift::HandlerCallbackBase> callback(' +
               'new apache::thrift::HandlerCallbackBase(std::move(req), ' +
@@ -1507,29 +1584,30 @@ class CppGenerator(t_generator.Generator):
                                 output=self._out_tcc,
                                 modifiers='static'):
                         out('ProtocolOut_ prot;')
-                        result_type = '{0}_{1}_presult'.format(
-                                service.name, function.name)
-                        out('{0} result;'.format(result_type))
+                        out('{0}_{1}_presult result;'.format(
+                                service.name, function.name))
                         if self._function_produces_result(function):
-                            out('result.success = const_cast' +
-                              '<{0}*>(&_return);'.format(
-                                      self._type_name(
-                                           function.returntype)))
-                            out('result.__isset.success = true;')
+                            out('{0} = const_cast<{1}*>(&_return);'.format(
+                                self._get_presult_success(),
+                                self._type_name(function.returntype)))
+                            out('{0};'.format(
+                                self._get_presult_success_isset('true')))
                         out('return serializeResponse("{0}", '
                           '&prot, protoSeqId, ctx, result);'
                           .format(function.name))
 
                 def cast_xceptions(xceptions):
-                    for xception in xceptions:
+                    for idx, xception in enumerate(xceptions):
                         with out('catch (const {0}& e)'.format(
                             self._type_name(xception.type))):
                             out('ctx->userException(' +
                               'folly::demangle(typeid(e)).toStdString(), ' +
                               'e.what());')
-                            out('result.{0} = e;'.format(xception.name))
-                            out('result.__isset.{0} = true;'.format(
-                                xception.name))
+                            ex_idx = self._exception_idx(function, idx)
+                            out('{0} = e;'.format(
+                                self._get_presult_exception(ex_idx, xception)))
+                            out('{0};'.format(
+                                self._get_presult_exception_isset(ex_idx, xception, 'true')))
                 if not function.oneway:
                     with out().defn(
                         'template <class ProtocolIn_, class ProtocolOut_>\n' +
@@ -1592,7 +1670,7 @@ class CppGenerator(t_generator.Generator):
                         if len(function.xceptions.members) > 0:
                             out('{0}_{1}_presult result;'.format(
                                 service.name, function.name))
-                        for xception in function.xceptions.members:
+                        for idx, xception in enumerate(function.xceptions.members):
                             xception_type = self._type_name(
                                 xception.type)
                             with out('if (ew.with_exception<{0}>([&]({0}& e)'.
@@ -1600,10 +1678,11 @@ class CppGenerator(t_generator.Generator):
                                 out('ctx->userException('
                                     'folly::demangle(typeid(e)).'
                                     'toStdString(), e.what());')
-                                out('result.{0} = e;'.format(
-                                    xception.name))
-                                out('result.__isset.{0} = true;'.format(
-                                    xception.name))
+                                ex_idx = self._exception_idx(function, idx)
+                                out('{0} = e;'.format(
+                                    self._get_presult_exception(ex_idx, xception)))
+                                out('{0};'.format(
+                                    self._get_presult_exception_isset(ex_idx, xception, 'true')))
                             out(')) {} else ')
                         with out(' '):
                             self._generate_app_ex(
@@ -1781,14 +1860,13 @@ class CppGenerator(t_generator.Generator):
 
                 callback = self.tmp("callback")
 
-                if function.returntype.is_void:
+                if function.oneway:
                     out("std::unique_ptr<apache::thrift::RequestCallback> "
                       "{callback}("
-                      "new apache::thrift::FutureCallback<void>("
-                      "std::move({promise}), {isOneWay}));"
+                      "new apache::thrift::OneWayFutureCallback("
+                      "std::move({promise})));"
                       .format(callback=callback,
-                              promise=promise_name,
-                              isOneWay=str(function.oneway).lower()))
+                              promise=promise_name))
 
                     args.append("std::move({0})".format(callback))
 
@@ -1932,15 +2010,18 @@ class CppGenerator(t_generator.Generator):
             out("{0} args;".format(pargs_class))
 
             # Generate list of function args
-            for field in function.arglist.members:
+            for idx, field in enumerate(function.arglist.members):
                 rtype = self._get_true_type(field.type)
                 if rtype.is_string or rtype.is_container \
                         or rtype.is_struct:
-                    out("args.{1} = const_cast<{0}*>(&{2});".format(
+                    out("{0} = const_cast<{1}*>(&{2});".format(
+                            self._get_pargs_field(idx, field),
                             self._type_name(field.type),
-                            field.name, field.name))
+                            field.name))
                 else:
-                    out("args.{0} = &{0};".format(field.name))
+                    out("{0} = &{1};".format(
+                        self._get_pargs_field(idx, field),
+                        field.name))
 
             if self.flag_compatibility:
                 sizer = '[](Protocol_* prot, {0}& args) ' \
@@ -2174,7 +2255,8 @@ class CppGenerator(t_generator.Generator):
                 out("{0}_{1}_presult result;".format(service.name, function.name))
 
                 if not function.returntype.is_void:
-                    out("result.success = &_return;")
+                    out("{0} = &_return;".format(
+                        self._get_presult_success()))
 
                 if self.flag_compatibility:
                     out("{0}_{1}_presult_read(prot, &result);".format(
@@ -2186,14 +2268,17 @@ class CppGenerator(t_generator.Generator):
                 out('ctx->postRead(state.buf()->length());')
 
                 if not function.returntype.is_void:
-                    with out("if (result.__isset.success)"):
+                    with out("if ({0})".format(self._get_presult_success_isset())):
                         out("// _return pointer has been filled")
                         out("return; // from try_and_catch")
-                for xs in function.xceptions.members:
-                    with out("if (result.__isset.{0})".format(xs.name)):
+                for idx, xs in enumerate(function.xceptions.members):
+                    ex_idx = self._exception_idx(function, idx)
+                    with out("if ({0})".format(
+                            self._get_presult_exception_isset(ex_idx, xs))):
                         out("interior_ew = folly::make_exception_wrapper<"
-                            "{0}>(result.{1});".format(
-                                self._type_name(xs.type), xs.name))
+                                "{0}>({1});".format(
+                                self._type_name(xs.type),
+                                self._get_presult_exception(ex_idx, xs)))
                         out("return; // from try_and_catch")
 
                 if not function.returntype.is_void:
@@ -2252,6 +2337,9 @@ class CppGenerator(t_generator.Generator):
     def _function_produces_result(self, function):
         return_type = function.returntype
         return not return_type.is_void
+
+    def _exception_idx(self, function, idx):
+        return idx + (1 if self._function_produces_result(function) else 0)
 
     def _argument_list(self, arglist, add_comma, unique):
         out = ""
@@ -3075,16 +3163,6 @@ class CppGenerator(t_generator.Generator):
             scope('xfer += ::apache::thrift::Cpp2Ops< {0}>::read('
                   'iprot, {1}.get());'.format(
                       self._type_name(otype), prefix))
-            scope('if (false) {}')
-            for member in struct.members:
-                if self._is_reference(member):
-                    scope('else if ({0}->{1}) {{}}'.format(
-                            prefix, member.name))
-                elif self._has_isset(member):
-                    scope('else if ({0}->__isset.{1}) {{}}'.format(
-                            prefix, member.name))
-            with scope('else'):
-                out("{0} = nullptr;".format(prefix))
         else:
             scope('xfer += ::apache::thrift::Cpp2Ops< {0}>::read('
                   'iprot, &{1});'.format(
@@ -3606,6 +3684,12 @@ class CppGenerator(t_generator.Generator):
                ('serializedSize', True),
                ('serializedSizeZC', True))
 
+        with scope.defn('template <> inline constexpr '
+                'apache::thrift::protocol::TType '
+                'Cpp2Ops<{compat_full_name}>::thriftType()'
+                .format(**locals()), in_header=True):
+            out('return apache::thrift::protocol::T_STRUCT;')
+
         for method, is_const in ops:
             const = 'const' if is_const else ''
             with scope.defn(
@@ -3871,74 +3955,79 @@ class CppGenerator(t_generator.Generator):
             return
 
         # DECLARATION
-        s1 = sns.cls('struct {0}_constants'.format(name)).scope
-        with s1:
+        s = sns.cls('struct {0}_constants'.format(name)).scope
+        with s:
             # Default constructor
             for c in constants:
                 inlined = c.type.is_base_type or c.type.is_enum
                 value = self._render_const_value(c.type, c.value,
                     literal=inlined)
-                if value:
-                    if inlined:
-                        s1('// consider using folly::StringPiece instead of '
+                if inlined:
+                    if c.type.is_string:
+                        s('// consider using folly::StringPiece instead of '
                             + 'std::string whenever possible')
-                        s1('// to referencing this statically allocated string'
+                        s('// to referencing this statically allocated string'
                             + ' constant, in order to ')
-                        s1('// prevent unnecessary allocations')
-                        s1.defn(('static constexpr {0} const {{name}}_ = {2}{1}'
-                            + '{2};').format('char const *' if c.type.is_string
-                            else self._type_name(c.type), value, '"' if
-                            c.type.is_string else ''), name=c.name,
-                            in_header=True)
-                        sns.impl('constexpr {0} const {1}_constants::{2}_;'
-                          .format('char const *' if c.type.is_string else
-                            self._type_name(c.type), name, c.name))
+                        s('// prevent unnecessary allocations')
+                    s.defn(('static constexpr {0} const {{name}}_ = {1}{2}'
+                        + '{1};').format(
+                            'char const *' if c.type.is_string
+                                else self._type_name(c.type),
+                            '"' if c.type.is_string else '',
+                            value if value is not None else "{}"
+                        ), name=c.name, in_header=True)
+                    sns.impl('constexpr {0} const {1}_constants::{2}_;'
+                      .format('char const *' if c.type.is_string else
+                        self._type_name(c.type), name, c.name))
 
-                    b = s1.defn('static {0}{1} const {2}{{name}}()'.format(
-                        'constexpr ' if inlined else '', 'char const *' if
-                        c.type.is_string else self._type_name(c.type), '' if
-                        inlined else '&'), name=c.name, in_header=True).scope
-                    with b:
+                b = s.defn('static {0}{1} const {2}{{name}}()'.format(
+                    'constexpr ' if inlined else '', 'char const *' if
+                    c.type.is_string else self._type_name(c.type), '' if
+                    inlined else '&'), name=c.name, in_header=True).scope
+                with b:
 
-                        if inlined:
-                            b('return {0}_;'.format(c.name))
-                        else:
-                            b('static {0} const instance({1});'.format(
-                                self._type_name(c.type), value))
-                            b('return instance;')
+                    if inlined:
+                        b('return {0}_;'.format(c.name))
+                    else:
+                        b('static {0} const instance{1};'.format(
+                            self._type_name(c.type),
+                            '({0})'.format(value) if value is not None else ''
+                        ))
+                        b('return instance;')
 
         # CODEMOD TRANSITIONAL
-        s2 = sns.cls(('struct __attribute__((__deprecated__("{1}"))) '
+        s = sns.cls(('struct __attribute__((__deprecated__("{1}"))) '
             + '{0}_constants_codemod').format(name, ('{0}_constants_codemod is '
                 + 'a transitional class only intended for codemods from the '
                 + 'deprecated {0}Constants to {0}_constants. Consider switching'
                 + ' to the latter as soon as possible.').format(name))).scope
 
-        with s2:
+        with s:
             # Default constructor
             for c in constants:
                 value = self._render_const_value(c.type, c.value)
-                if value:
-                    inlined = (c.type.is_base_type
-                        and not c.type.is_string) or c.type.is_enum
-                    b = s2.defn('static {0}{1} const {2}{{name}}()'.format(
-                        'constexpr ' if inlined else '', self._type_name(
-                        c.type), '' if inlined else '&'), name=c.name,
-                        in_header=True).scope
-                    with b:
-                        if inlined:
-                            b('return {0};'.format(value))
-                        else:
-                            b('static {0} const instance({1});'.format(
-                                self._type_name(c.type), value))
-                            b('return instance;')
+                inlined = (c.type.is_base_type
+                    and not c.type.is_string) or c.type.is_enum
+                b = s.defn('static {0}{1} const {2}{{name}}()'.format(
+                    'constexpr ' if inlined else '', self._type_name(
+                    c.type), '' if inlined else '&'), name=c.name,
+                    in_header=True).scope
+                with b:
+                    if inlined:
+                        b('return {0};'.format(
+                          value if value is not None else '{}'))
+                    else:
+                        b('static {0} const instance{1};'.format(
+                            self._type_name(c.type),
+                            '({0})'.format(value) if value is not None else ''))
+                        b('return instance;')
 
         # DEPRECATED
         s = sns.cls('class __attribute__((__deprecated__("{1}"))) {0}Constants'
             .format(name, ("{0}Constants suffers from the 'static "
                 + "initialization order fiasco' (https://isocpp.org/wiki/faq/"
                 + "ctors#static-init-order) and may CRASH you program. Instead,"
-                + " use {0}_constants::CONSTANT_NAME").format(name))).scope
+                + " use {0}_constants::CONSTANT_NAME()").format(name))).scope
         with s:
             s.label('public:')
             # Default constructor
@@ -3963,7 +4052,8 @@ class CppGenerator(t_generator.Generator):
             + 'g_{0}_constants').format(name, ("g_{0}_constants suffers from "
                 + "the 'static initialization order fiasco' (https://isocpp.org"
                 + "/wiki/faq/ctors#static-init-order) and may CRASH you program"
-                + ". Instead, use {0}_constants::CONSTANT_NAME").format(name)))
+                + ". Instead, use {0}_constants::CONSTANT_NAME()")
+                .format(name)))
 
         sns()
         sns('#pragma GCC diagnostic pop')
